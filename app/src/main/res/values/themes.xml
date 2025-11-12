@@ -1,0 +1,8 @@
+<resources>
+    <!-- App theme used by all activities -->
+    <style name="Theme.AsthmaApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Keep minimal for now; add colors later -->
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+    </style>
+</resources>

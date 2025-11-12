@@ -1,0 +1,58 @@
+# CSCB07 Asthma App — Login MVP
+
+## What I implemented (my responsibilities)
+
+
+- **View (Log-ins):**
+    Role-selection screen with three buttons
+    (`LoginActivity` + `activity_login.xml`), plus three blank role pages
+    (`ParentLoginActivity`, `ChildLoginActivity`, `ProviderLoginActivity`).
+    The View only receives user input and delegates all logic to the Presenter.
+
+
+- **Presenter (Connection Logic):**
+   `ILoginPresenter`, `LoginPresenter`, and `LoginView` interface.
+    View is passive; The Presenter receives button click events from the View, decides navigation,
+    and delegates data operations to the Model.
+
+
+- **Model (Database Contract):**
+    Defined IUserRepository as an abstract interface that describes user authentication operations
+    (to be connected to Firebase).
+    Created a stub FirebaseUserRepository that throws UnsupportedOperationException for teammates
+    to complete later.
+    Follows Abstraction/Information Hiding — the Presenter never depends on Firebase implementation
+    details.
+
+## Design principles (as required)
+- **View:** Passivity/Decoupling: no business logic.
+- **Presenter:** Encapsulation/Testability: only Java, no Android APIs beyond the View boundary.
+- **Model:** Abstraction/Information Hiding: Firebase hidden behind `IUserRepository`.
+##
+
+
+## How to run
+1. Set launcher in `AndroidManifest.xml` to `.LoginActivity` (exported=true).
+2. Ensure theme is AppCompat-descendant: `Theme.AsthmaApp` in `values/themes.xml`.
+3. Run the app and then tap any role and then blank page opens.
+
+## Unit tests
+- `LoginPresenterTest` under `app/src/test/java/.../login/`
+- Run via Gradle -> Tasks -> verification -> `test` or right-click the test class.
+
+### Test deps (app/build.gradle)
+```gradle
+testImplementation "junit:junit:4.13.2"
+testImplementation "org.mockito:mockito-core:5.11.0"
+##
+
+
+##
+Next Steps (For Teammates)
+
+Implement FirebaseUserRepository.authenticateUser() to handle Firebase Authentication.
+
+Extend the blank login pages to collect user credentials.
+
+Connect Presenter logic to real authentication results.
+##
