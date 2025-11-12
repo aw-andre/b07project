@@ -1,0 +1,14 @@
+package com.cscb07.asthmaapp.model;
+
+public class Provider extends User {
+
+    public Provider(String userId, String name, String email) {
+        super(userId, name, email, "Provider");
+    }
+
+    @Override
+    public void navigateToHome() {
+        System.out.println("Navigating to Provider Home Screen...");
+    }
+}
+

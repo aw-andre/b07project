@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="utf-8"?>
+=======
+>>>>>>> master
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -10,6 +13,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+<<<<<<< HEAD
         android:theme="@style/Theme.B07_Group_Project">
         <activity
             android:name=".MainActivity"
@@ -23,3 +27,26 @@
     </application>
 
 </manifest>
+=======
+        android:theme="@style/Theme.AsthmaApp"
+        tools:targetApi="31">
+
+        <activity
+            android:name="com.cscb07.asthmaapp.LoginActivity"
+            android:exported="true"
+            android:label="Role Selection">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="com.cscb07.asthmaapp.ParentLoginActivity" android:exported="false"/>
+        <activity android:name="com.cscb07.asthmaapp.ChildLoginActivity" android:exported="false"/>
+        <activity android:name="com.cscb07.asthmaapp.ProviderLoginActivity" android:exported="false"/>
+
+        <!-- Keep MainActivity but WITHOUT a launcher filter -->
+        <activity android:name="com.cscb07.asthmaapp.MainActivity" android:exported="false"/>
+    </application>
+</manifest>
+>>>>>>> master

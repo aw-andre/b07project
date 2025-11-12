@@ -1,3 +1,11 @@
 <resources>
+<<<<<<< HEAD
     <string name="app_name">B07_Group_Project</string>
 </resources>
+=======
+    <string name="app_name">AsthmaApp</string>
+    <string name="parent_login">Parent Login</string>
+    <string name="child_login">Child Login</string>
+    <string name="provider_login">Provider Login</string>
+</resources>
+>>>>>>> master

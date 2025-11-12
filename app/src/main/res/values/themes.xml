@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.B07_Group_Project" parent="Theme.Material3.DayNight.NoActionBar">
@@ -7,3 +8,13 @@
 
     <style name="Theme.B07_Group_Project" parent="Base.Theme.B07_Group_Project" />
 </resources>
+=======
+<resources>
+    <!-- App theme used by all activities -->
+    <style name="Theme.AsthmaApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Keep minimal for now; add colors later -->
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+    </style>
+</resources>
+>>>>>>> master
