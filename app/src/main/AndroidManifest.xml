@@ -12,6 +12,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.B07_Group_Project">
         <activity
+            android:name=".child_userinterface_sixth_screen"
+            android:exported="false" />
+        <activity
+            android:name=".child_userinterface_screen_five"
+            android:exported="false" />
+        <activity
+            android:name=".child_userinterface_fourth_screen"
+            android:exported="false" />
+        <activity
+            android:name=".child_userinterface_third_screen"
+            android:exported="false" />
+        <activity
+            android:name=".child_userinterface_second_screen"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
