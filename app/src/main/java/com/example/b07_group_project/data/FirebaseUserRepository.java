@@ -1,21 +1,28 @@
 package com.example.b07_group_project.data;
 
+import com.example.b07_group_project.model.User;
 
 /**
- * Placeholder implementation of IUserRepository for teammates.
- * Responsibility: handle actual Firebase Authentication and user retrieval.
- * Design principle: Abstraction — keeps Firebase details hidden from Presenter.
+ * Firebase storage/auth implementation.
+ * This is a stub so that teammates can fill in Firebase logic later.
+ * For now, all methods throw UnsupportedOperationException.
  */
 public class FirebaseUserRepository implements IUserRepository {
 
     @Override
-    public void authenticateUser(String role,
-                                 String username,
-                                 String password,
-                                 AuthCallback callback) {
-        // TODO: To be implemented by Firebase team.
-        throw new UnsupportedOperationException(
-                "Firebase logic to be added by teammates.");
+    public User authenticate(String email, String password, String role) {
+        throw new UnsupportedOperationException("Firebase authentication not implemented yet.");
+    }
+
+    @Override
+    public User getByEmail(String email) {
+        throw new UnsupportedOperationException("Firebase lookup not implemented yet.");
+    }
+
+    @Override
+    public void createUser(User user) {
+        throw new UnsupportedOperationException("Firebase user creation not implemented yet.");
     }
 }
+
 
