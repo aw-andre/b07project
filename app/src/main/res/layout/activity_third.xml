@@ -217,4 +217,14 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <ImageButton
+        android:id="@+id/imageButton1"
+        android:layout_width="54dp"
+        android:layout_height="49dp"
+        android:background="#EFFFFFFF"
+        android:contentDescription="Back button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_media_rew" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

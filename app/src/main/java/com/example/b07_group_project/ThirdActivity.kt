@@ -1,6 +1,8 @@
 package com.example.b07_group_project
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,6 +17,12 @@ class ThirdActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+        val buttonOne: ImageButton = findViewById(R.id.imageButton1)
+        buttonOne.setOnClickListener {
+            val intent = Intent(this@ThirdActivity, MainActivity::class.java)
+            startActivity(intent)
+
         }
     }
 }

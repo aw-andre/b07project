@@ -19,7 +19,23 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+        <activity
+            android:name=".SecondActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ThirdActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FourthActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FifthActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SixthActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
