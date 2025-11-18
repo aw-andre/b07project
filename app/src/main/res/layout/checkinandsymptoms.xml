@@ -8,7 +8,7 @@
     android:layout_gravity="center"
     android:background="#EFFFFFFF"
     android:backgroundTint="@color/white"
-    tools:context=".FourthActivity">
+    tools:context=".checkInAndSymptoms">
 
     <ImageButton
         android:id="@+id/imageButton"

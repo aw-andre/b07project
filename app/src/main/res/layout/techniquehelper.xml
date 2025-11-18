@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#EEFFFFFF"
     android:contentDescription="back button"
-    tools:context=".SecondActivity">
+    tools:context=".techniqueHelper">
 
     <TextView
         android:id="@+id/textView4"
@@ -21,16 +21,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.022" />
 
-    <VideoView
-        android:id="@+id/videoView6"
-        android:layout_width="287dp"
-        android:layout_height="171dp"
-        android:layout_marginTop="56dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="374dp"
         android:layout_height="460dp"
         android:layout_marginBottom="28dp"
@@ -211,5 +203,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_media_rew" />
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
+        app:layout_constraintDimensionRatio="16:9" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F2FFFFFF"
-    tools:context=".FifthActivity">
+    tools:context=".troubleBreathing">
 
     <ImageButton
         android:id="@+id/imageButton2"
