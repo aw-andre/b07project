@@ -43,17 +43,21 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
     @Override
     public void navigateToParent() {
         startActivity(new Intent(this, ParentLoginActivity.class));
+        finish();
     }
 
     @Override
     public void navigateToChild() {
         startActivity(new Intent(this, ChildLoginActivity.class));
+        finish();
     }
 
     @Override
     public void navigateToProvider() {
         startActivity(new Intent(this, ProviderLoginActivity.class));
+        finish();
     }
+
 
     @Override
     public void showError(String message) {

@@ -14,12 +14,23 @@
         android:theme="@style/Theme.B07_Group_Project"
         tools:targetApi="31">
 
-        <!-- Login screens (your responsibility) -->
+        <!-- Home screens -->
+        <activity
+            android:name=".ProviderHomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ParentHomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".childUserInterfaceHome"
+            android:exported="false" />
+
+        <!-- Login screens -->
         <activity android:name=".ChildLoginActivity" />
         <activity android:name=".ParentLoginActivity" />
         <activity android:name=".ProviderLoginActivity" />
 
-        <!-- Simple XML MainActivity (not launcher, just there if needed) -->
+        <!-- Old default activity (NOT launcher anymore) -->
         <activity android:name=".MainActivity" />
 
         <!-- Launcher: role-selection LoginActivity -->
