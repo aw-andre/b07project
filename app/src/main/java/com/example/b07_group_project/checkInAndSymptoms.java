@@ -22,7 +22,7 @@ public class checkInAndSymptoms extends AppCompatActivity {
     private Switch switch3, switch4, switch5, switch6, switch7, switch9, switch10, switch11;
     private Button submitButton;
 
-    // Hardcoded child ID for demonstration
+    // Hardcoded child ID for demo
     private static final String HARDCODED_CHILD_ID = "test_child_123";
 
     @Override
@@ -66,7 +66,7 @@ public class checkInAndSymptoms extends AppCompatActivity {
 
         DatabaseReference newLogEntryRef = symptomsLogRef.push();
 
-        Map<String, Object> symptomData = new HashMap<>(); // Use Object to allow for different data types
+        Map<String, Object> symptomData = new HashMap<>();
         symptomData.put("dayTimeCoughingWheezing", switch3.isChecked());
         symptomData.put("nightTimeCoughingWheezing", switch4.isChecked());
         symptomData.put("activityLimits", switch5.isChecked());
@@ -75,7 +75,7 @@ public class checkInAndSymptoms extends AppCompatActivity {
         symptomData.put("coldAirExposure", switch9.isChecked());
         symptomData.put("smokeExposure", switch10.isChecked());
         symptomData.put("perfumeExposure", switch11.isChecked());
-        symptomData.put("timestamp", ServerValue.TIMESTAMP); // Add a server-side timestamp
+        symptomData.put("timestamp", ServerValue.TIMESTAMP);
 
         newLogEntryRef.setValue(symptomData)
                 .addOnSuccessListener(aVoid -> {
