@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.b07_group_project">
 
     <application
         android:allowBackup="true"
@@ -12,45 +11,39 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.B07_Group_Project">
+        android:theme="@style/Theme.B07_Group_Project"
+        tools:targetApi="31">
+
+        <!-- Home screens  -->
         <activity
-            android:name=".providerUserInterfaceHome"
-            android:exported="true">
-            <!--<intent-filter>
+            android:name=".childUserInterfaceHome"
+            android:exported="false" />
+        <activity
+            android:name=".ParentHomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProviderHomeActivity"
+            android:exported="false" />
+
+        <!-- Login screens  -->
+        <activity android:name=".ChildLoginActivity" />
+        <activity android:name=".ParentLoginActivity" />
+        <activity android:name=".ProviderLoginActivity" />
+
+        <!-- Old default template activity (not a launcher anymore) -->
+        <activity android:name=".MainActivity" />
+
+        <!-- Single, unified entry point: role-selection LoginActivity -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:label="Role Selection">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter> -->
-
+            </intent-filter>
         </activity>
-        <activity
-            android:name=".techniqueHelper"
-            android:exported="true" />
-        <activity
-            android:name=".medicationLog"
-            android:exported="true" />
-        <activity
-            android:name=".checkInAndSymptoms"
-            android:exported="true" />
-        <activity
-            android:name=".troubleBreathing"
-            android:exported="true" />
-        <activity
-            android:name=".badges"
-            android:exported="true" />
-        <activity android:name=".childProgressView" android:exported="true"/>
-        <activity android:name=".medicationManagement" android:exported="true"/>
-        <activity android:name=".symptomReports" android:exported="true"/>
-        <activity android:name=".emergencyContacts" android:exported="true"/>
-        <activity android:name=".settings" android:exported="true"/>
-        <activity android:name=".manageChildren" android:exported="true"/>
-        <activity android:name=".providerSharing" android:exported="true"/>
-        <activity android:name=".patientList" android:exported="true"/>
-        <activity android:name=".treatmentPlans" android:exported="true"/>
-        <activity android:name=".progressReports" android:exported="true"/>
-        <activity android:name=".medicationPrescriptions" android:exported="true"/>
-        <activity android:name=".analyticsDashboard" android:exported="true"/>
-        <activity android:name=".providerReportView" android:exported="true"/>
+
     </application>
 
 </manifest>
