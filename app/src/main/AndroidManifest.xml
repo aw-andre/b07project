@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.b07_group_project">
 
     <application
         android:allowBackup="true"
@@ -10,16 +11,39 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.B07_Group_Project">
+        android:theme="@style/Theme.B07_Group_Project"
+        tools:targetApi="31">
+
+        <!-- Home screens  -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".childUserInterfaceHome"
+            android:exported="false" />
+        <activity
+            android:name=".ParentHomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProviderHomeActivity"
+            android:exported="false" />
+
+        <!-- Login screens  -->
+        <activity android:name=".ChildLoginActivity" />
+        <activity android:name=".ParentLoginActivity" />
+        <activity android:name=".ProviderLoginActivity" />
+
+        <!-- Old default template activity (not a launcher anymore) -->
+        <activity android:name=".MainActivity" />
+
+        <!-- Single, unified entry point: role-selection LoginActivity -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:label="Role Selection">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
