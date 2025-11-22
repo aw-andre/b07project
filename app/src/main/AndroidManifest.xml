@@ -31,7 +31,6 @@
         <activity android:name=".ProviderLoginActivity" />
 
         <!-- Old default template activity (not a launcher anymore) -->
-        <activity android:name=".MainActivity" />
 
         <!-- Single, unified entry point: role-selection LoginActivity -->
         <activity
