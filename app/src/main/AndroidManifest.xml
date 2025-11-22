@@ -14,26 +14,26 @@
         android:theme="@style/Theme.B07_Group_Project"
         tools:targetApi="31">
 
-        <!-- Home screens -->
+        <!-- Home screens  -->
         <activity
-            android:name=".ProviderHomeActivity"
+            android:name=".childUserInterfaceHome"
             android:exported="false" />
         <activity
             android:name=".ParentHomeActivity"
             android:exported="false" />
         <activity
-            android:name=".childUserInterfaceHome"
+            android:name=".ProviderHomeActivity"
             android:exported="false" />
 
-        <!-- Login screens -->
+        <!-- Login screens  -->
         <activity android:name=".ChildLoginActivity" />
         <activity android:name=".ParentLoginActivity" />
         <activity android:name=".ProviderLoginActivity" />
 
-        <!-- Old default activity (NOT launcher anymore) -->
+        <!-- Old default template activity (not a launcher anymore) -->
         <activity android:name=".MainActivity" />
 
-        <!-- Launcher: role-selection LoginActivity -->
+        <!-- Single, unified entry point: role-selection LoginActivity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
