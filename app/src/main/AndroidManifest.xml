@@ -14,33 +14,38 @@
         android:theme="@style/Theme.B07_Group_Project"
         tools:targetApi="31">
 
-        <!-- Home screens  -->
+        <!-- Real Home Screens (correct ones) -->
         <activity
             android:name=".childUserInterfaceHome"
             android:exported="false" />
+
         <activity
-            android:name=".ParentHomeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ProviderHomeActivity"
+            android:name=".parentUserInterfaceHome"
             android:exported="false" />
 
-        <!-- Login screens  -->
+        <activity
+            android:name=".providerUserInterfaceHome"
+            android:exported="false" />
+
+        <!-- Login screens -->
         <activity android:name=".ChildLoginActivity" />
         <activity android:name=".ParentLoginActivity" />
         <activity android:name=".ProviderLoginActivity" />
 
-        <!-- Old default template activity (not a launcher anymore) -->
+        <!-- Registration -->
+        <activity android:name=".RegisterActivity" />
 
-        <!-- Single, unified entry point: role-selection LoginActivity -->
+        <!-- App entry point: login role selector -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
             android:label="Role Selection">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
     </application>

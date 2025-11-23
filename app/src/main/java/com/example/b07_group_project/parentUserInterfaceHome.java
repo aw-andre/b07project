@@ -10,87 +10,84 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import com.example.b07_group_project.R;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class parentUserInterfaceHome extends AppCompatActivity {
+
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.parentuserinterfacehome);
+
+        auth = FirebaseAuth.getInstance();
+
+        // Required security: protect this page
+        if (auth.getCurrentUser() == null) {
+            redirectToLogin();
+            return;
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        /*Button button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(parentUserInterfaceHome.this, childProgressView.class);
-                startActivity(intent);
-            }
-        });
-
-         */
-
         Button buttonTwo = findViewById(R.id.button2);
-        buttonTwo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(parentUserInterfaceHome.this, medicationManagement.class);
-                startActivity(intent);
-            }
+        buttonTwo.setOnClickListener(v -> {
+            startActivity(new Intent(this, medicationManagement.class));
         });
 
         Button buttonThree = findViewById(R.id.button3);
-        buttonThree.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(parentUserInterfaceHome.this, symptomReports.class);
-                startActivity(intent);
-            }
+        buttonThree.setOnClickListener(v -> {
+            startActivity(new Intent(this, symptomReports.class));
         });
 
         Button buttonFour = findViewById(R.id.button4);
-        buttonFour.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(parentUserInterfaceHome.this, emergencyContacts.class);
-                startActivity(intent);
-            }
+        buttonFour.setOnClickListener(v -> {
+            startActivity(new Intent(this, emergencyContacts.class));
         });
 
         Button buttonFive = findViewById(R.id.button5);
-        buttonFive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(parentUserInterfaceHome.this, settings.class);
-                startActivity(intent);
-            }
+        buttonFive.setOnClickListener(v -> {
+            startActivity(new Intent(this, settings.class));
         });
 
         Button buttonSix = findViewById(R.id.button6);
-        buttonSix.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(parentUserInterfaceHome.this, manageChildren.class);
-                startActivity(intent);
-            }
+        buttonSix.setOnClickListener(v -> {
+            startActivity(new Intent(this, manageChildren.class));
         });
 
-        /*Button buttonSeven = findViewById(R.id.button7);
-        buttonSeven.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(parentUserInterfaceHome.this, providerSharing.class);
-                startActivity(intent);
-            }
-        });
+        // 🔥 Add this to your XML:
+        // <Button android:id="@+id/btnLogout" ... />
+        Button logout = findViewById(R.id.btnLogout);
+        if (logout != null) {
+            logout.setOnClickListener(v -> {
+                auth.signOut();
+                redirectToLogin();
+            });
+        }
+    }
 
-         */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Mandatory: protected screen
+        if (auth.getCurrentUser() == null) {
+            redirectToLogin();
+        }
+    }
+
+    private void redirectToLogin() {
+        Intent i = new Intent(this, LoginActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
+        finish();
     }
 }
+
 

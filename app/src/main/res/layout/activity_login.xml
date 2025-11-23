@@ -9,22 +9,31 @@
 
     <Button
         android:id="@+id/btnParent"
-        android:text="@string/parent_login"
+        android:text="Parent Login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/btnChild"
-        android:text="@string/child_login"
+        android:text="Child Login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp" />
 
     <Button
         android:id="@+id/btnProvider"
-        android:text="@string/provider_login"
+        android:text="Provider Login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp" />
 
+    <!-- NEW REGISTER BUTTON -->
+    <Button
+        android:id="@+id/btnRegister"
+        android:text="Register"
+        android:layout_marginTop="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>
+
