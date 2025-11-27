@@ -33,6 +33,8 @@ public class badges extends AppCompatActivity {
 
     private ImageView bronzeTrophy, silverTrophy, goldTrophy;
     private DatabaseReference childRef;
+    private int lowRescueMonthThreshold = 4; // Default value
+    private int techniqueSessionsThreshold = 10; // Default value
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +65,36 @@ public class badges extends AppCompatActivity {
                 .child("children")
                 .child(userId);
 
-        // Check conditions for all badges
-        checkBronzeBadge();
-        checkSilverBadge();
-        checkGoldBadge();
+        // Retrieve badge settings
+        childRef.child("badgeSettings").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Integer lowRescue = snapshot.child("lowRescueMonthThreshold").getValue(Integer.class);
+                    Integer techniqueSessions = snapshot.child("techniqueSessionsThreshold").getValue(Integer.class);
+
+                    if (lowRescue != null) {
+                        lowRescueMonthThreshold = lowRescue;
+                    }
+                    if (techniqueSessions != null) {
+                        techniqueSessionsThreshold = techniqueSessions;
+                    }
+                }
+                // After settings are loaded, check badges
+                checkBronzeBadge();
+                checkSilverBadge();
+                checkGoldBadge();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(badges.this, "Failed to load badge settings.", Toast.LENGTH_SHORT).show();
+                // Even if settings fail to load, try to check badges with default values
+                checkBronzeBadge();
+                checkSilverBadge();
+                checkGoldBadge();
+            }
+        });
     }
 
     private void checkBronzeBadge() {
@@ -138,7 +166,7 @@ public class badges extends AppCompatActivity {
                     }
                 }
 
-                if (perfectSessions >= 10) {
+                if (perfectSessions >= techniqueSessionsThreshold) {
                     silverTrophy.setVisibility(View.VISIBLE);
                 }
             }
@@ -165,13 +193,13 @@ public class badges extends AppCompatActivity {
                 }
 
                 // Condition: less than three rescue sessions in ANY one month
-                // This means if even one month has < 3 sessions, they get the badge.
+                // This means if even one month has < lowRescueMonthThreshold sessions, they get the badge.
                 boolean conditionMet = false;
                 if (monthlyCounts.isEmpty()) {
-                    conditionMet = true; // No logs means 0 logs, which is < 3
+                    conditionMet = true; // No logs means 0 logs, which is < lowRescueMonthThreshold
                 } else {
                     for (Integer count : monthlyCounts.values()) {
-                        if (count < 3) {
+                        if (count < lowRescueMonthThreshold) {
                             conditionMet = true;
                             break;
                         }
