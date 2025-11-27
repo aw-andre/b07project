@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +34,7 @@ public class medicationLog extends AppCompatActivity {
     private EditText breathRatingEditText;
     private Button checkInSubmitButton;
 
-    // Hardcoded child ID for demonstration
-    private static final String HARDCODED_CHILD_ID = "test_child_123";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +86,15 @@ public class medicationLog extends AppCompatActivity {
         });
     }
 
+    private String getCurrentUserId() {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            return FirebaseAuth.getInstance().getCurrentUser().getUid();
+        } else {
+            Toast.makeText(medicationLog.this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+
     private void sendRescueLogDataToFirebase() {
         String time = rescueTimeEditText.getText().toString().trim();
         String dose = rescueDoseEditText.getText().toString().trim();
@@ -95,7 +104,15 @@ public class medicationLog extends AppCompatActivity {
             return;
         }
 
-        DatabaseReference rescueLogRef = FirebaseDatabaseManager.getInstance().getDatabaseReference().child("children").child(HARDCODED_CHILD_ID).child("rescue_logs");
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            return;
+        }
+
+        DatabaseReference rescueLogRef = FirebaseDatabaseManager.getInstance().getDatabaseReference()
+                .child("children")
+                .child(userId)
+                .child("rescueLogs");
         DatabaseReference newLogEntryRef = rescueLogRef.push();
         Map<String, Object> logData = new HashMap<>();
         logData.put("time", time);
@@ -120,7 +137,12 @@ public class medicationLog extends AppCompatActivity {
             return;
         }
 
-        DatabaseReference controlLogRef = FirebaseDatabaseManager.getInstance().getDatabaseReference().child("children").child(HARDCODED_CHILD_ID).child("control_logs");
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            return;
+        }
+
+        DatabaseReference controlLogRef = FirebaseDatabaseManager.getInstance().getDatabaseReference().child("children").child(userId).child("controlLogs");
         DatabaseReference newLogEntryRef = controlLogRef.push();
         Map<String, Object> logData = new HashMap<>();
         logData.put("time", time);
@@ -152,7 +174,12 @@ public class medicationLog extends AppCompatActivity {
             return;
         }
 
-        DatabaseReference checkInRef = FirebaseDatabaseManager.getInstance().getDatabaseReference().child("children").child(HARDCODED_CHILD_ID).child("post_medication_checkins");
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            return;
+        }
+
+        DatabaseReference checkInRef = FirebaseDatabaseManager.getInstance().getDatabaseReference().child("children").child(userId).child("postMedicationCheckins");
         DatabaseReference newLogEntryRef = checkInRef.push();
         Map<String, Object> logData = new HashMap<>();
         logData.put("feeling", feeling);

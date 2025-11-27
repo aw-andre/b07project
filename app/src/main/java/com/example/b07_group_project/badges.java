@@ -10,9 +10,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.Instant;
@@ -30,7 +32,6 @@ import java.util.stream.Collectors;
 public class badges extends AppCompatActivity {
 
     private ImageView bronzeTrophy, silverTrophy, goldTrophy;
-    private static final String HARDCODED_CHILD_ID = "test_child_123";
     private DatabaseReference childRef;
 
     @Override
@@ -50,11 +51,17 @@ public class badges extends AppCompatActivity {
         silverTrophy = findViewById(R.id.imageView6);
         goldTrophy = findViewById(R.id.imageView7);
 
+        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        if (userId == null) {
+            Toast.makeText(badges.this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Get reference to the child's data in Firebase
-        childRef = FirebaseDatabaseManager.getInstance()
-                .getDatabaseReference()
+        childRef = FirebaseDatabase.getInstance()
+                .getReference()
                 .child("children")
-                .child(HARDCODED_CHILD_ID);
+                .child(userId);
 
         // Check conditions for all badges
         checkBronzeBadge();
@@ -63,7 +70,7 @@ public class badges extends AppCompatActivity {
     }
 
     private void checkBronzeBadge() {
-        DatabaseReference controlLogsRef = childRef.child("control_logs");
+        DatabaseReference controlLogsRef = childRef.child("controlLogs");
         controlLogsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -108,18 +115,18 @@ public class badges extends AppCompatActivity {
     }
 
     private void checkSilverBadge() {
-        DatabaseReference checklistLogsRef = childRef.child("technique_checklist_logs");
+        DatabaseReference checklistLogsRef = childRef.child("techniqueChecklist");
         checklistLogsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int perfectSessions = 0;
                 for (DataSnapshot logSnapshot : snapshot.getChildren()) {
-                    Boolean shookInhaler = logSnapshot.child("shookInhaler").getValue(Boolean.class);
-                    Boolean removedCap = logSnapshot.child("removedCap").getValue(Boolean.class);
-                    Boolean exhaledDeeply = logSnapshot.child("exhaledDeeply").getValue(Boolean.class);
-                    Boolean pressedWhileInhaling = logSnapshot.child("pressedWhileInhaling").getValue(Boolean.class);
-                    Boolean heldBreath = logSnapshot.child("heldBreath").getValue(Boolean.class);
-                    Boolean exhaledSlowly = logSnapshot.child("exhaledSlowly").getValue(Boolean.class);
+                    Boolean shookInhaler = logSnapshot.child("shakeInhaler").getValue(Boolean.class);
+                    Boolean removedCap = logSnapshot.child("removeCap").getValue(Boolean.class);
+                    Boolean exhaledDeeply = logSnapshot.child("exhaleDeeply").getValue(Boolean.class);
+                    Boolean pressedWhileInhaling = logSnapshot.child("pressAndInhale").getValue(Boolean.class);
+                    Boolean heldBreath = logSnapshot.child("holdBreath").getValue(Boolean.class);
+                    Boolean exhaledSlowly = logSnapshot.child("exhaleSlowly").getValue(Boolean.class);
 
                     if (Boolean.TRUE.equals(shookInhaler) &&
                         Boolean.TRUE.equals(removedCap) &&
@@ -144,7 +151,7 @@ public class badges extends AppCompatActivity {
     }
 
     private void checkGoldBadge() {
-        DatabaseReference rescueLogsRef = childRef.child("rescue_logs");
+        DatabaseReference rescueLogsRef = childRef.child("rescueLogs");
         rescueLogsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

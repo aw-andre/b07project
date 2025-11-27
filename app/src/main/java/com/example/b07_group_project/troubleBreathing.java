@@ -11,7 +11,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
@@ -25,9 +27,6 @@ public class troubleBreathing extends AppCompatActivity {
     private Switch chestRetractionsSwitch;
     private Switch blueLipsNailsSwitch;
     private Button submitButton;
-
-    // Hardcoded child ID for demonstration
-    private static final String HARDCODED_CHILD_ID = "test_child_123";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +66,17 @@ public class troubleBreathing extends AppCompatActivity {
             return;
         }
 
-        DatabaseReference logRef = FirebaseDatabaseManager.getInstance()
-                .getDatabaseReference()
+        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        if (userId == null) {
+            Toast.makeText(troubleBreathing.this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DatabaseReference logRef = FirebaseDatabase.getInstance()
+                .getReference()
                 .child("children")
-                .child(HARDCODED_CHILD_ID)
-                .child("trouble_breathing_logs");
+                .child(userId)
+                .child("troubleBreathingLogs");
 
         DatabaseReference newLogEntryRef = logRef.push();
 

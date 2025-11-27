@@ -17,7 +17,7 @@
         <!-- Real Home Screens (correct ones) -->
         <activity
             android:name=".childUserInterfaceHome"
-            android:exported="false" />
+            android:exported="true" />
 
         <activity
             android:name=".parentUserInterfaceHome"
@@ -31,6 +31,12 @@
         <activity android:name=".ChildLoginActivity" />
         <activity android:name=".ParentLoginActivity" />
         <activity android:name=".ProviderLoginActivity" />
+
+        <activity android:name=".techniqueHelper" android:exported="true" />
+        <activity android:name=".badges" android:exported="true" />
+        <activity android:name=".medicationLog" android:exported="true" />
+        <activity android:name=".checkInAndSymptoms" android:exported="true" />
+        <activity android:name=".troubleBreathing" android:exported="true" />
 
         <!-- Registration -->
         <activity android:name=".RegisterActivity" />

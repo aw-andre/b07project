@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
@@ -21,9 +22,6 @@ public class checkInAndSymptoms extends AppCompatActivity {
 
     private Switch switch3, switch4, switch5, switch6, switch7, switch9, switch10, switch11;
     private Button submitButton;
-
-    // Hardcoded child ID for demo
-    private static final String HARDCODED_CHILD_ID = "test_child_123";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +56,16 @@ public class checkInAndSymptoms extends AppCompatActivity {
     }
 
     private void sendSymptomDataToFirebase() {
-        DatabaseReference symptomsLogRef = FirebaseDatabaseManager.getInstance()
-                .getDatabaseReference()
+        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        if (userId == null) {
+            Toast.makeText(checkInAndSymptoms.this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DatabaseReference symptomsLogRef = FirebaseDatabase.getInstance()
+                .getReference()
                 .child("children")
-                .child(HARDCODED_CHILD_ID)
+                .child(userId)
                 .child("symptoms");
 
         DatabaseReference newLogEntryRef = symptomsLogRef.push();
