@@ -45,6 +45,7 @@ dependencies {
     // Firebase products
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database")   // ← ADD THIS
 
     // AndroidX + UI
     implementation(libs.androidx.core.ktx)
@@ -58,4 +59,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+
 
