@@ -34,117 +34,106 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.068" />
 
-    <TextView
-        android:id="@+id/inviteCodeLabel"
-        android:layout_width="wrap_content"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/inviteCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:text="Invite Code:"
-        android:textSize="16sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
-
-    <TextView
-        android:id="@+id/inviteCodeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ABC123XYZ"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inviteCodeLabel" />
-
-    <Button
-        android:id="@+id/generateInviteButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Generate New Invite"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inviteCodeLabel" />
-
-    <TextView
-        android:id="@+id/sharingLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="Share with Provider (per child):"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inviteCodeText" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sharingLabel">
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="24dp">
 
             <TextView
+                android:id="@+id/inviteCodeLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Data Types:"
-                android:textSize="14sp"
+                android:text="Current Invite Code"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <Switch
-                android:id="@+id/shareRescueLogs"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/inviteCodeText"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rescue Logs" />
+                android:layout_marginTop="8dp"
+                android:text="— — —"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-            <Switch
-                android:id="@+id/shareControllerAdherence"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/inviteCodeTimestamp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Controller Adherence Summary" />
+                android:layout_marginTop="4dp"
+                android:text="Last updated: --"
+                android:textSize="12sp"
+                android:textColor="#666666" />
 
-            <Switch
-                android:id="@+id/shareSymptoms"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Symptoms" />
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
 
-            <Switch
-                android:id="@+id/shareTriggers"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Triggers" />
+                <Button
+                    android:id="@+id/copyInviteButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Copy Code"
+                    android:backgroundTint="@android:color/holo_blue_light" />
 
-            <Switch
-                android:id="@+id/sharePEF"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Peak-flow (PEF)" />
-
-            <Switch
-                android:id="@+id/shareTriageIncidents"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Triage Incidents" />
-
-            <Switch
-                android:id="@+id/shareSummaryCharts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Summary Charts" />
+                <Button
+                    android:id="@+id/generateInviteButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Generate New"
+                    android:backgroundTint="@android:color/holo_purple" />
+            </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </androidx.cardview.widget.CardView>
 
-    <Button
-        android:id="@+id/exportReportButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Export Report (PDF/CSV)"
+    <LinearLayout
+        android:id="@+id/inviteHistoryContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#FFFFFFFF"
+        android:elevation="2dp"
+        app:layout_constraintTop_toBottomOf="@+id/inviteCard"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recent Invites"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/inviteHistoryText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="No invites generated yet."
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <ImageButton
         android:id="@+id/imageButton"

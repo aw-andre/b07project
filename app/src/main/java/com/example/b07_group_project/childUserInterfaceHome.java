@@ -2,6 +2,7 @@ package com.example.b07_group_project;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
@@ -10,78 +11,67 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.b07_group_project.R;
 
 public class childUserInterfaceHome extends AppCompatActivity {
-
-    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.childuserinterfacehome);
-
-        auth = FirebaseAuth.getInstance();
-
-        // Protect this screen: if user is not logged in, send them to LoginActivity
-        if (auth.getCurrentUser() == null) {
-            redirectToLogin();
-            return;
-        }
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Navigation buttons
-        Button techniqueHelperBtn = findViewById(R.id.button);
-        Button medicationLogBtn   = findViewById(R.id.button2);
-        Button symptomsBtn        = findViewById(R.id.button3);
-        Button troubleBreathingBtn= findViewById(R.id.button4);
-        Button badgesBtn          = findViewById(R.id.button5);
-        Button logoutBtn          = findViewById(R.id.btnLogout); // must exist in XML
+        Button button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(childUserInterfaceHome.this, techniqueHelper.class);
+                startActivity(intent);
+            }
+        });
 
-        techniqueHelperBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, techniqueHelper.class)));
+        Button buttonThree = findViewById(R.id.button2);
+        buttonThree.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(childUserInterfaceHome.this, medicationLog.class);
+                startActivity(intent);
+            }
+        });
 
-        medicationLogBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, medicationLog.class)));
+        Button buttonFour = findViewById(R.id.button3);
+        buttonFour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(childUserInterfaceHome.this, checkInAndSymptoms.class);
+                startActivity(intent);
+            }
+        });
 
-        symptomsBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, checkInAndSymptoms.class)));
+        Button buttonFive = findViewById(R.id.button4);
+        buttonFive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(childUserInterfaceHome.this, troubleBreathing.class);
+                startActivity(intent);
+            }
+        });
 
-        troubleBreathingBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, troubleBreathing.class)));
+        Button buttonSix = findViewById(R.id.button5);
+        buttonSix.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(childUserInterfaceHome.this, badges.class);
+                startActivity(intent);
+            }
+        });
 
-        badgesBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, badges.class)));
-
-        // Logout
-        if (logoutBtn != null) {
-            logoutBtn.setOnClickListener(v -> {
-                auth.signOut();
-                redirectToLogin();
-            });
-        }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Double-check protection when returning to this Activity
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            redirectToLogin();
-        }
-    }
 
-    private void redirectToLogin() {
-        Intent i = new Intent(this, LoginActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(i);
-        finish();
-    }
 }
-

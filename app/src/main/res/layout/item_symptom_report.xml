@@ -22,6 +22,15 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/reportChildText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Child: --"
+            android:textSize="13sp"
+            android:textColor="#555555" />
+
+        <TextView
             android:id="@+id/reportAuthorText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

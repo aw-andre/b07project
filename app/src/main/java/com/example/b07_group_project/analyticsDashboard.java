@@ -7,6 +7,8 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.b07_group_project.R;
+
 public class analyticsDashboard extends AppCompatActivity {
 
     @Override

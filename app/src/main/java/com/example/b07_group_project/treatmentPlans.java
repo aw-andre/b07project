@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import com.example.b07_group_project.R;
 
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.b07_group_project.R;
 
 public class treatmentPlans extends AppCompatActivity {
 

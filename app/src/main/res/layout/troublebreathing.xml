@@ -44,7 +44,6 @@
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/rescueAttemptEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Please enter last rescue attempt" />
@@ -55,7 +54,6 @@
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/pefEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="PEF (Optional)" />

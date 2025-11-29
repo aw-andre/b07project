@@ -14,54 +14,91 @@
         android:theme="@style/Theme.B07_Group_Project"
         tools:targetApi="31">
 
-        <!-- Home screens -->
         <activity
             android:name=".childUserInterfaceHome"
             android:exported="true" />
-
         <activity
             android:name=".parentUserInterfaceHome"
-            android:exported="false" />
-
+            android:exported="true" />
         <activity
             android:name=".providerUserInterfaceHome"
-            android:exported="false" />
+            android:exported="true" />
 
-        <!-- Parent sub-screens -->
-        <activity android:name=".medicationManagement" android:exported="false" />
-        <activity android:name=".symptomReports" android:exported="false" />
-        <activity android:name=".emergencyContacts" android:exported="false" />
-        <activity android:name=".settings" android:exported="false" />
-        <activity android:name=".manageChildren" android:exported="false" />
+        <activity
+            android:name=".ChildLoginActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ParentLoginActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ProviderLoginActivity"
+            android:exported="true" />
 
-        <!-- Login screens -->
-        <activity android:name=".ChildLoginActivity" />
-        <activity android:name=".ParentLoginActivity" />
-        <activity android:name=".ProviderLoginActivity" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="true" />
 
-        <!-- Child features -->
-        <activity android:name=".techniqueHelper" android:exported="true" />
-        <activity android:name=".badges" android:exported="true" />
-        <activity android:name=".medicationLog" android:exported="true" />
-        <activity android:name=".checkInAndSymptoms" android:exported="true" />
-        <activity android:name=".troubleBreathing" android:exported="true" />
-
-        <!-- Registration -->
-        <activity android:name=".RegisterActivity" />
-
-        <!-- Entry point -->
         <activity
             android:name=".LoginActivity"
-            android:exported="true"
-            android:label="Role Selection">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".analyticsDashboard"
+            android:exported="true" />
+        <activity
+            android:name=".badges"
+            android:exported="true" />
+        <activity
+            android:name=".checkInAndSymptoms"
+            android:exported="true" />
+        <activity
+            android:name=".emergencyContacts"
+            android:exported="true" />
+        <activity
+            android:name=".manageChildren"
+            android:exported="true" />
+        <activity
+            android:name=".medicationLog"
+            android:exported="true" />
+        <activity
+            android:name=".medicationManagement"
+            android:exported="true" />
+        <activity
+            android:name=".medicationPrescriptions"
+            android:exported="true" />
+        <activity
+            android:name=".patientList"
+            android:exported="true" />
+        <activity
+            android:name=".progressReports"
+            android:exported="true" />
+        <activity
+            android:name=".providerReportView"
+            android:exported="true" />
+        <activity
+            android:name=".providerSharing"
+            android:exported="true" />
+        <activity
+            android:name=".settings"
+            android:exported="true" />
+        <activity
+            android:name=".symptomReports"
+            android:exported="true" />
+        <activity
+            android:name=".techniqueHelper"
+            android:exported="true" />
+        <activity
+            android:name=".treatmentPlans"
+            android:exported="true" />
+        <activity
+            android:name=".troubleBreathing"
+            android:exported="true" />
+
     </application>
-
-
 
 </manifest>
