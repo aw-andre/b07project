@@ -45,7 +45,11 @@ dependencies {
     // Firebase products
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-database")   // ← ADD THIS
+    implementation("com.google.firebase:firebase-database")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+
 
     // AndroidX + UI
     implementation(libs.androidx.core.ktx)
