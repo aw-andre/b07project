@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.b07_group_project">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.B07_Group_Project"
+        tools:targetApi="31">
+
+        <!-- Real Home Screens (correct ones) -->
+        <activity
+            android:name=".childUserInterfaceHome"
+            android:exported="false" />
+
+        <activity
+            android:name=".parentUserInterfaceHome"
+            android:exported="false" />
+
+        <activity
+            android:name=".providerUserInterfaceHome"
+            android:exported="false" />
+
+        <!-- Login screens -->
+        <activity android:name=".ChildLoginActivity" />
+        <activity android:name=".ParentLoginActivity" />
+        <activity android:name=".ProviderLoginActivity" />
+
+        <!-- Registration -->
+        <activity android:name=".RegisterActivity" />
+
+        <!-- App entry point: login role selector -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:label="Role Selection">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+    </application>
+
+</manifest>
+

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">B07_Group_Project</string>
+    <string name="date_prefix">Date: %s</string>
+    <string name="child_prefix">Child: %s</string>
+    <string name="author_prefix">Entered by: %s</string>
+    <string name="symptoms_prefix">Symptoms: %s</string>
+    <string name="triggers_prefix">Triggers: %s</string>
+</resources>

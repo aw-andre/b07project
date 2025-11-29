@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:contentPadding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/childNameText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Child Name"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/childAgeText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Age: --"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/childNotesText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Notes: --"
+            android:textSize="12sp"
+            android:textColor="#666666" />
+
+        <TextView
+            android:id="@+id/childPbText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="PB: Not set"
+            android:textSize="12sp"
+            android:textColor="#444444" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Share with Provider:"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical">
+
+            <Switch
+                android:id="@+id/shareRescueLogs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rescue Logs"
+                android:textSize="12sp" />
+
+            <Switch
+                android:id="@+id/shareControllerAdherence"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Controller Adherence"
+                android:textSize="12sp" />
+
+            <Switch
+                android:id="@+id/shareSymptoms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Symptoms"
+                android:textSize="12sp" />
+
+            <Switch
+                android:id="@+id/shareTriggers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Triggers"
+                android:textSize="12sp" />
+
+            <Switch
+                android:id="@+id/sharePEF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peak-flow (PEF)"
+                android:textSize="12sp" />
+
+            <Switch
+                android:id="@+id/shareTriageIncidents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Triage Incidents"
+                android:textSize="12sp" />
+
+            <Switch
+                android:id="@+id/shareSummaryCharts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Summary Charts"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/editButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="Edit"
+                android:backgroundTint="@android:color/holo_blue_light" />
+
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="Delete"
+                android:backgroundTint="@android:color/holo_red_dark" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
+
