@@ -1,17 +1,16 @@
 package com.example.b07_group_project;
 
-import static android.widget.VideoView.*;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
-import android.widget.MediaController;
-import android.widget.VideoView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,11 +18,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+
 import java.util.HashMap;
 import java.util.Map;
-import android.widget.Toast;
-import android.widget.Button;
-import android.widget.CheckBox;
 
 public class techniqueHelper extends AppCompatActivity {
 
@@ -36,25 +33,23 @@ public class techniqueHelper extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.techniquehelper);
 
-        ImageButton button = findViewById(R.id.imageButton4);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(techniqueHelper.this, childUserInterfaceHome.class);
-                startActivity(intent);
-            }
+        // Back button
+        ImageButton backButton = findViewById(R.id.imageButton4);
+        backButton.setOnClickListener(v -> {
+            Intent intent = new Intent(techniqueHelper.this, childUserInterfaceHome.class);
+            startActivity(intent);
         });
 
-        VideoView videoView = findViewById(R.id.videoView3);
+        // WebView for technique video / content
+        WebView webView = findViewById(R.id.webView);
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webView.setWebViewClient(new WebViewClient());
 
-        MediaController mediaController = new MediaController(this);
-        mediaController.setAnchorView(findViewById(R.id.scrollView2));
-        mediaController.setMediaPlayer(videoView);
+        // TODO: replace this URL with the actual inhaler technique resource your team wants
+        webView.loadUrl("https://www.youtube.com/results?search_query=how+to+use+an+inhaler+with+spacer");
 
-        videoView.setMediaController(mediaController);
-        videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.asthma_video));
-        videoView.start();
-
+        // Checklist UI
         checkBox = findViewById(R.id.checkBox);
         checkBox3 = findViewById(R.id.checkBox3);
         checkBox4 = findViewById(R.id.checkBox4);
@@ -63,22 +58,22 @@ public class techniqueHelper extends AppCompatActivity {
         checkBox9 = findViewById(R.id.checkBox9);
         submitButton = findViewById(R.id.button6);
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendTechniqueDataToFirebase();
-            }
-        });
+        submitButton.setOnClickListener(v -> sendTechniqueDataToFirebase());
     }
 
     private void sendTechniqueDataToFirebase() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
-        if (userId == null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             Toast.makeText(techniqueHelper.this, "User not logged in.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("children").child(userId).child("techniqueChecklist");
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance()
+                .getReference("children")
+                .child(userId)
+                .child("techniqueChecklist");
+
         DatabaseReference newSubmissionRef = databaseRef.push();
 
         Map<String, Object> checklistData = new HashMap<>();
@@ -91,7 +86,12 @@ public class techniqueHelper extends AppCompatActivity {
         checklistData.put("timestamp", ServerValue.TIMESTAMP);
 
         newSubmissionRef.setValue(checklistData)
-                .addOnSuccessListener(aVoid -> Toast.makeText(techniqueHelper.this, "Checklist submitted successfully!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(techniqueHelper.this, "Failed to submit checklist: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(techniqueHelper.this, "Checklist submitted successfully!", Toast.LENGTH_SHORT).show()
+                )
+                .addOnFailureListener(e ->
+                        Toast.makeText(techniqueHelper.this, "Failed to submit checklist: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
     }
 }
+
