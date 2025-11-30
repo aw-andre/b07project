@@ -13,7 +13,7 @@ import com.example.b07_group_project.model.User;
 public class LoginPresenter implements ILoginPresenter {
 
     private LoginView view;
-    private final IUserRepository userRepository; // reserved for later auth integration
+    private final IUserRepository userRepository; // not used yet, but OK
 
     public LoginPresenter(LoginView view, IUserRepository repo) {
         this.view = view;
@@ -35,7 +35,7 @@ public class LoginPresenter implements ILoginPresenter {
         if (view != null) view.navigateToProvider();
     }
 
-    // lifecycle-safe detach if you add tests/leaks prevention later
     public void detach() { this.view = null; }
 }
+
 

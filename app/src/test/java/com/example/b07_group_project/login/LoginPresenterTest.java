@@ -1,36 +1,76 @@
 package com.example.b07_group_project.login;
 
+import com.example.b07_group_project.data.IUserRepository;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for LoginPresenter (MVP).
+ * Each test validates one specific behavior.
+ */
+@RunWith(MockitoJUnitRunner.class)
 public class LoginPresenterTest {
 
-    private LoginView mockView;
+    @Mock
+    private LoginView view;
+
+    @Mock
+    private IUserRepository userRepository;
+
     private LoginPresenter presenter;
 
     @Before
     public void setUp() {
-        mockView = mock(LoginView.class);
-        presenter = new LoginPresenter(mockView, null);
+        presenter = new LoginPresenter(view, userRepository);
     }
-
+    // parent
     @Test
-    public void parentClick_navigatesToParent() {
+    public void onParentLoginClicked_navigatesToParent() {
         presenter.onParentLoginClicked();
-        verify(mockView).navigateToParent();
-    }
 
+        verify(view).navigateToParent();
+        verify(view, never()).navigateToChild();
+        verify(view, never()).navigateToProvider();
+        verifyNoInteractions(userRepository);
+    }
+    // child
     @Test
-    public void childClick_navigatesToChild() {
+    public void onChildLoginClicked_navigatesToChild() {
         presenter.onChildLoginClicked();
-        verify(mockView).navigateToChild();
-    }
 
+        verify(view).navigateToChild();
+        verify(view, never()).navigateToParent();
+        verify(view, never()).navigateToProvider();
+        verifyNoInteractions(userRepository);
+    }
+    // provider
     @Test
-    public void providerClick_navigatesToProvider() {
+    public void onProviderLoginClicked_navigatesToProvider() {
         presenter.onProviderLoginClicked();
-        verify(mockView).navigateToProvider();
+
+        verify(view).navigateToProvider();
+        verify(view, never()).navigateToParent();
+        verify(view, never()).navigateToChild();
+        verifyNoInteractions(userRepository);
+    }
+    // viewing
+    @Test
+    public void detach_preventsFurtherViewCalls() {
+        presenter.detach();
+
+        presenter.onParentLoginClicked();
+        presenter.onChildLoginClicked();
+        presenter.onProviderLoginClicked();
+
+        // After detach, presenter must not touch the view at all
+        verifyNoInteractions(view);
+        verifyNoInteractions(userRepository);
     }
 }
 

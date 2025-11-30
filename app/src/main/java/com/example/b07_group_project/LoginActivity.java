@@ -28,14 +28,14 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
         setContentView(R.layout.activity_login);
 
         // For now we still use the dummy repository;
-        // your teammates can later swap this for FirebaseUserRepository.
+        // you can later swap this for FirebaseUserRepository.
         IUserRepository repo = new DummyUserRepository();
         presenter = new LoginPresenter(this, repo);
 
         Button parentBtn   = findViewById(R.id.btnParent);
         Button childBtn    = findViewById(R.id.btnChild);
         Button providerBtn = findViewById(R.id.btnProvider);
-        Button registerBtn = findViewById(R.id.btnRegister); // add this to XML
+        Button registerBtn = findViewById(R.id.btnRegister);
 
         parentBtn.setOnClickListener(v -> presenter.onParentLoginClicked());
         childBtn.setOnClickListener(v -> presenter.onChildLoginClicked());
@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
     @Override
     public void navigateToParent() {
         startActivity(new Intent(this, ParentLoginActivity.class));
-        // DO NOT finish(); we want Back to return here.
+        // DO NOT finish(); we should: Back to return here.
     }
 
     @Override
