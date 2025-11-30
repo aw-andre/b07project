@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,7 +27,8 @@ import java.util.List;
 
 public class patientList extends AppCompatActivity {
 
-    private static final String PROVIDER_ID = "provider789"; // To be replaced with actual provider ID
+    //private static final String PROVIDER_ID = "provider789"; // To be replaced with actual provider ID
+    private static final String PROVIDER_ID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     private LinearLayout childContainer;
     private TextView emptyText;
@@ -56,6 +58,28 @@ public class patientList extends AppCompatActivity {
 
         loadLinkedChildren();
         addChildBtn.setOnClickListener(v -> showInviteCodeDialog());
+    }
+
+    private void showInviteCodeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_enter_invite_code, null);
+
+        EditText codeInput = view.findViewById(R.id.inviteCodeInput);
+        Button confirm = view.findViewById(R.id.confirmAddChild);
+
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+
+        confirm.setOnClickListener(v -> {
+            String code = codeInput.getText().toString().trim();
+            if (TextUtils.isEmpty(code)) {
+                Toast.makeText(this, "Enter invite code", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            traceParentForInviteCode(code, dialog);
+        });
+
+        dialog.show();
     }
 
     private void loadLinkedChildren() {
@@ -98,13 +122,15 @@ public class patientList extends AppCompatActivity {
                             String dob = snapshot.child("dob").getValue(String.class);
                             String notes = snapshot.child("notes").getValue(String.class);
                             Long pbValue = snapshot.child("pb").getValue(Long.class);
+                            Long adherenceValue = snapshot.child("adherence").getValue(Long.class);
 
                             addChildCard(
                                     snapshot.getKey(),
                                     name,
                                     dob,
                                     notes == null ? "—" : notes,
-                                    pbValue == null ? "Not set" : pbValue.toString()
+                                    pbValue == null ? "Not set" : pbValue.toString(),
+                                    adherenceValue == null ? "Not set" : adherenceValue.toString()
                             );
                         }
 
@@ -114,21 +140,26 @@ public class patientList extends AppCompatActivity {
         }
     }
 
-    private void addChildCard(String childId, String name, String dob, String notes, String pb) {
+    private void addChildCard(String childId, String name, String dob, String notes, String pb, String adherence) {
         View card = LayoutInflater.from(this).inflate(R.layout.item_child, childContainer, false);
 
         TextView nameText = card.findViewById(R.id.childNameText);
         TextView ageText = card.findViewById(R.id.childAgeText);
         TextView notesText = card.findViewById(R.id.childNotesText);
         TextView pbText = card.findViewById(R.id.childPbText);
+        TextView adherenceText = card.findViewById(R.id.childAdherenceText);
 
         nameText.setText(name);
         ageText.setText("DOB: " + dob);
         notesText.setText("Notes: " + notes);
         pbText.setText("PB: " + pb);
+        adherenceText.setText("Adherence: " + adherence);
+
+        card.findViewById(R.id.childIdText).setVisibility(View.GONE);
 
         card.findViewById(R.id.editButton).setVisibility(View.GONE);
         card.findViewById(R.id.deleteButton).setVisibility(View.GONE);
+
         card.findViewById(R.id.shareRescueLogs).setVisibility(View.GONE);
         card.findViewById(R.id.shareControllerAdherence).setVisibility(View.GONE);
         card.findViewById(R.id.shareSymptoms).setVisibility(View.GONE);
@@ -137,30 +168,14 @@ public class patientList extends AppCompatActivity {
         card.findViewById(R.id.shareTriageIncidents).setVisibility(View.GONE);
         card.findViewById(R.id.shareSummaryCharts).setVisibility(View.GONE);
 
+        card.findViewById(R.id.childIdText).setVisibility(View.GONE);
+
+        card.findViewById(R.id.shareTitleText).setVisibility(View.GONE);
+        card.findViewById(R.id.shareToggleContainer).setVisibility(View.GONE);
+
         childContainer.addView(card);
     }
 
-    private void showInviteCodeDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_enter_invite_code, null);
-
-        EditText codeInput = view.findViewById(R.id.inviteCodeInput);
-        Button confirm = view.findViewById(R.id.confirmAddChild);
-
-        builder.setView(view);
-        AlertDialog dialog = builder.create();
-
-        confirm.setOnClickListener(v -> {
-            String code = codeInput.getText().toString().trim();
-            if (TextUtils.isEmpty(code)) {
-                Toast.makeText(this, "Enter invite code", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            traceParentForInviteCode(code, dialog);
-        });
-
-        dialog.show();
-    }
 
     private void traceParentForInviteCode(String code, AlertDialog dialog) {
         invitesRef.addListenerForSingleValueEvent(new ValueEventListener() {

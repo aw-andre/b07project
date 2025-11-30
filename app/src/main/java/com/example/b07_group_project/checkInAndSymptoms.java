@@ -10,17 +10,19 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class checkInAndSymptoms extends AppCompatActivity {
 
-    private Switch switch3, switch4, switch5, switch6, switch7, switch9, switch10, switch11;
+    private Switch switch3, switch4, switch5;
+    private Switch switch6, switch7, switch9, switch10, switch11, switch12;
     private Button submitButton;
 
     @Override
@@ -29,64 +31,69 @@ public class checkInAndSymptoms extends AppCompatActivity {
         setContentView(R.layout.checkinandsymptoms);
 
         ImageButton backButton = findViewById(R.id.imageButton);
+
         switch3 = findViewById(R.id.switch3);
         switch4 = findViewById(R.id.switch4);
         switch5 = findViewById(R.id.switch5);
+
         switch6 = findViewById(R.id.switch6);
         switch7 = findViewById(R.id.switch7);
         switch9 = findViewById(R.id.switch9);
         switch10 = findViewById(R.id.switch10);
         switch11 = findViewById(R.id.switch11);
+        switch12 = findViewById(R.id.switch12);
+
         submitButton = findViewById(R.id.button9);
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(checkInAndSymptoms.this, childUserInterfaceHome.class);
-                startActivity(intent);
-            }
-        });
+        backButton.setOnClickListener(v -> finish());
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendSymptomDataToFirebase();
-            }
-        });
+        submitButton.setOnClickListener(v -> sendSymptomDataToFirebase());
     }
 
     private void sendSymptomDataToFirebase() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
-        if (userId == null) {
+        //String childId = "-OerA9MC_EiCnwvC-CVQ"; // Replace with the actual child ID
+
+        String childId = getIntent().getStringExtra("childId");
+
+        if (childId == null) {
             Toast.makeText(checkInAndSymptoms.this, "User not logged in.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        DatabaseReference symptomsLogRef = FirebaseDatabase.getInstance()
+        DatabaseReference symptomsRef = FirebaseDatabase.getInstance()
                 .getReference()
                 .child("children")
-                .child(userId)
+                .child(childId)
+                .child("logs")
                 .child("symptoms");
 
-        DatabaseReference newLogEntryRef = symptomsLogRef.push();
+        DatabaseReference newEntry = symptomsRef.push();
 
-        Map<String, Object> symptomData = new HashMap<>();
-        symptomData.put("dayTimeCoughingWheezing", switch3.isChecked());
-        symptomData.put("nightTimeCoughingWheezing", switch4.isChecked());
-        symptomData.put("activityLimits", switch5.isChecked());
-        symptomData.put("dustExposure", switch6.isChecked());
-        symptomData.put("petsExposure", switch7.isChecked());
-        symptomData.put("coldAirExposure", switch9.isChecked());
-        symptomData.put("smokeExposure", switch10.isChecked());
-        symptomData.put("perfumeExposure", switch11.isChecked());
-        symptomData.put("timestamp", ServerValue.TIMESTAMP);
+        List<String> triggersList = new ArrayList<>();
 
-        newLogEntryRef.setValue(symptomData)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(checkInAndSymptoms.this, "Symptom data submitted successfully!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(checkInAndSymptoms.this, "Failed to submit data: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
+        if (switch6.isChecked()) triggersList.add("Exercise");
+        if (switch7.isChecked()) triggersList.add("Dust/Pets");
+        if (switch9.isChecked()) triggersList.add("Cold Air");
+        if (switch10.isChecked()) triggersList.add("Smoke");
+        if (switch12.isChecked()) triggersList.add("Illness");
+        if (switch11.isChecked()) triggersList.add("Perfume/Cleaners");
+
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("activityLimits", switch5.isChecked());
+        data.put("author", "Child");
+        data.put("coughWheeze", switch3.isChecked());
+        data.put("nightWaking", switch4.isChecked());
+        data.put("notes", "");
+        data.put("timestamp", ServerValue.TIMESTAMP);
+        data.put("triggers", triggersList);
+
+        newEntry.setValue(data)
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(checkInAndSymptoms.this, "Submitted!", Toast.LENGTH_SHORT).show()
+                )
+                .addOnFailureListener(e ->
+                        Toast.makeText(checkInAndSymptoms.this, "Failed: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
     }
 }

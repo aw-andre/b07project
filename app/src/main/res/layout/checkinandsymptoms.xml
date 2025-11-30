@@ -36,8 +36,8 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="370dp"
-        android:layout_height="244dp"
+        android:layout_width="375dp"
+        android:layout_height="184dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="4dp"
         app:contentPadding="14dp"
@@ -50,7 +50,7 @@
 
         <LinearLayout
             android:layout_width="336dp"
-            android:layout_height="214dp"
+            android:layout_height="156dp"
             android:orientation="vertical">
 
             <Switch
@@ -71,27 +71,23 @@
                 android:layout_height="50dp"
                 android:text="Activity Limits" />
 
-            <Button
-                android:id="@+id/button8"
-                android:layout_width="163dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Button" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:layout_width="356dp"
-        android:layout_height="333dp"
+        android:id="@+id/cardView5"
+        android:layout_width="355dp"
+        android:layout_height="272dp"
         android:layout_marginBottom="16dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="4dp"
         app:contentPadding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.446"
+        app:layout_constraintHorizontal_bias="0.454"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView">
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        app:layout_constraintVertical_bias="0.123">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -101,39 +97,39 @@
             <Switch
                 android:id="@+id/switch6"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="Dust" />
+                android:layout_height="40dp"
+                android:text="Exercise" />
 
             <Switch
                 android:id="@+id/switch7"
                 android:layout_width="match_parent"
-                android:layout_height="49dp"
-                android:text="Pets" />
+                android:layout_height="38dp"
+                android:text="Pets/Dust" />
 
             <Switch
                 android:id="@+id/switch9"
                 android:layout_width="match_parent"
-                android:layout_height="49dp"
+                android:layout_height="39dp"
                 android:text="Cold Air" />
 
             <Switch
                 android:id="@+id/switch10"
                 android:layout_width="match_parent"
-                android:layout_height="51dp"
+                android:layout_height="40dp"
                 android:text="Smoke" />
 
             <Switch
                 android:id="@+id/switch11"
                 android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:text="Perfume" />
+                android:layout_height="42dp"
+                android:text="Perfume/Cleaners/Strong Odors" />
 
-            <Button
-                android:id="@+id/button9"
-                android:layout_width="196dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Submit" />
+            <Switch
+                android:id="@+id/switch12"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Illness" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -149,5 +145,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.852" />
+
+    <Button
+        android:id="@+id/button9"
+        android:layout_width="196dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="296dp"
+        android:text="Submit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cardView5"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

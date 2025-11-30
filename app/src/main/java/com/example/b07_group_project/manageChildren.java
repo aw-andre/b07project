@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.b07_group_project.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,7 +34,7 @@ import java.util.Locale;
 
 public class manageChildren extends AppCompatActivity {
 
-    private String parentId = "parent123";
+    private static final String parentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     private DatabaseReference childrenRef;
     private DatabaseReference shareSettingsRef;
@@ -87,8 +88,20 @@ public class manageChildren extends AppCompatActivity {
                     if (child.parentId == null) continue;
                     if (!parentId.equals(child.parentId)) continue;
 
-                    child.childId = childSnap.getKey();
-                    childrenList.add(child);
+                    String resolvedId = childSnap.getKey();
+                    if (resolvedId == null) continue;
+
+                    Child wrapped = new Child(
+                            child.parentId,
+                            child.name,
+                            child.dob,
+                            child.notes,
+                            child.pb,
+                            child.adherence
+                    );
+                    wrapped.childIdResolved = resolvedId;
+
+                    childrenList.add(wrapped);
                 }
 
                 childAdapter.notifyDataSetChanged();
@@ -126,6 +139,7 @@ public class manageChildren extends AppCompatActivity {
         EditText dobInput = dialogView.findViewById(R.id.childDobInput);
         EditText notesInput = dialogView.findViewById(R.id.childNotesInput);
         EditText pbInput = dialogView.findViewById(R.id.childPbInput);
+        EditText adherenceInput = dialogView.findViewById(R.id.childAdherenceInput);
 
         dobInput.setOnClickListener(v ->
                 dobInput.setText(new SimpleDateFormat("yyyy-MM-dd",
@@ -138,6 +152,7 @@ public class manageChildren extends AppCompatActivity {
             String dob = dobInput.getText().toString().trim();
             String notes = notesInput.getText().toString().trim();
             Integer pb = parseInteger(pbInput.getText().toString().trim());
+            Integer adherence = parseInteger(adherenceInput.getText().toString().trim());
 
             if (name.isEmpty()) {
                 Toast.makeText(this, "Please enter a name", Toast.LENGTH_SHORT).show();
@@ -147,7 +162,7 @@ public class manageChildren extends AppCompatActivity {
             String childId = childrenRef.push().getKey();
             if (childId == null) return;
 
-            Child child = new Child(childId, parentId, name, dob, notes, pb);
+            Child child = new Child(parentId, name, dob, notes, pb, adherence);
 
             childrenRef.child(childId).setValue(child)
                     .addOnSuccessListener(aVoid -> {
@@ -162,6 +177,7 @@ public class manageChildren extends AppCompatActivity {
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }
+
     private void createDefaultShareAndBadgeSettings(String childId) {
 
         ShareSettings defaults = new ShareSettings(
@@ -198,11 +214,13 @@ public class manageChildren extends AppCompatActivity {
         EditText dobInput = dialogView.findViewById(R.id.childDobInput);
         EditText notesInput = dialogView.findViewById(R.id.childNotesInput);
         EditText pbInput = dialogView.findViewById(R.id.childPbInput);
+        EditText adherenceInput = dialogView.findViewById(R.id.childAdherenceInput);
 
         nameInput.setText(child.name);
         dobInput.setText(child.dob);
         notesInput.setText(child.notes);
         pbInput.setText(child.pb != null ? String.valueOf(child.pb) : "");
+        adherenceInput.setText(child.adherence != null ? String.valueOf(child.adherence) : "");
 
         dobInput.setOnClickListener(v ->
                 dobInput.setText(new SimpleDateFormat("yyyy-MM-dd",
@@ -217,18 +235,22 @@ public class manageChildren extends AppCompatActivity {
                 return;
             }
 
-            childrenRef.child(child.childId).child("name")
+            childrenRef.child(child.childIdResolved).child("name")
                     .setValue(nameInput.getText().toString().trim());
 
-            childrenRef.child(child.childId).child("dob")
+            childrenRef.child(child.childIdResolved).child("dob")
                     .setValue(dobInput.getText().toString().trim());
 
-            childrenRef.child(child.childId).child("notes")
+            childrenRef.child(child.childIdResolved).child("notes")
                     .setValue(notesInput.getText().toString().trim());
 
             Integer updatedPb = parseInteger(pbInput.getText().toString().trim());
-            childrenRef.child(child.childId).child("pb")
+            childrenRef.child(child.childIdResolved).child("pb")
                     .setValue(updatedPb);
+
+            Integer updatedAdherence = parseInteger(adherenceInput.getText().toString().trim());
+            childrenRef.child(child.childIdResolved).child("adherence")
+                    .setValue(updatedAdherence);
 
             Toast.makeText(manageChildren.this,
                     "Child updated", Toast.LENGTH_SHORT).show();
@@ -248,23 +270,24 @@ public class manageChildren extends AppCompatActivity {
     }
 
     private static class Child {
-        public String childId;
         public String parentId;
         public String name;
         public String dob;
         public String notes;
         public Integer pb;
+        public Integer adherence;
+        public String childIdResolved;
 
         public Child() {}
 
-        public Child(String childId, String parentId, String name,
-                     String dob, String notes, Integer pb) {
-            this.childId = childId;
+        public Child(String parentId, String name,
+                     String dob, String notes, Integer pb, Integer adherence) {
             this.parentId = parentId;
             this.name = name;
             this.dob = dob;
             this.notes = notes;
             this.pb = pb;
+            this.adherence = adherence;
         }
     }
 
@@ -316,6 +339,10 @@ public class manageChildren extends AppCompatActivity {
             holder.binding = true;
 
             holder.nameText.setText(child.name != null ? child.name : "Unnamed");
+
+            // ★ 추가된 childId 표시
+            holder.childIdText.setText("ID: " + child.childIdResolved);
+
             holder.ageText.setText(
                     child.dob != null && !child.dob.isEmpty()
                             ? "DOB: " + child.dob
@@ -331,7 +358,13 @@ public class manageChildren extends AppCompatActivity {
                 holder.pbText.setText("PB: Not set");
             }
 
-            DatabaseReference ref = shareSettingsRef.child(child.childId);
+            if (child.adherence != null && child.adherence > 0) {
+                holder.adherenceText.setText("Adherence: " + child.adherence + " dose/day");
+            } else {
+                holder.adherenceText.setText("Adherence: Not set");
+            }
+
+            DatabaseReference ref = shareSettingsRef.child(child.childIdResolved);
 
             ValueEventListener l = new ValueEventListener() {
                 @Override
@@ -379,11 +412,11 @@ public class manageChildren extends AppCompatActivity {
                         .setMessage("Are you sure?")
                         .setPositiveButton("Delete", (dialog, which) -> {
 
-                            childrenRef.child(child.childId).removeValue();
-                            shareSettingsRef.child(child.childId).removeValue();
+                            childrenRef.child(child.childIdResolved).removeValue();
+                            shareSettingsRef.child(child.childIdResolved).removeValue();
 
                             FirebaseDatabase.getInstance().getReference("children")
-                                    .child(child.childId)
+                                    .child(child.childIdResolved)
                                     .child("badgeSettings")
                                     .removeValue();
                         })
@@ -415,7 +448,7 @@ public class manageChildren extends AppCompatActivity {
 
                 if (field == null) return;
 
-                shareSettingsRef.child(child.childId).child(field).setValue(isChecked);
+                shareSettingsRef.child(child.childIdResolved).child(field).setValue(isChecked);
             };
 
             h.shareRescueLogs.setOnCheckedChangeListener(listener);
@@ -429,7 +462,7 @@ public class manageChildren extends AppCompatActivity {
 
         class ChildViewHolder extends RecyclerView.ViewHolder {
 
-            TextView nameText, ageText, notesText, pbText;
+            TextView nameText, childIdText, ageText, notesText, pbText, adherenceText;
             Button editButton, deleteButton;
 
             Switch shareRescueLogs;
@@ -446,9 +479,14 @@ public class manageChildren extends AppCompatActivity {
                 super(itemView);
 
                 nameText = itemView.findViewById(R.id.childNameText);
+
+                // ★ 추가된 childIdText
+                childIdText = itemView.findViewById(R.id.childIdText);
+
                 ageText = itemView.findViewById(R.id.childAgeText);
                 notesText = itemView.findViewById(R.id.childNotesText);
                 pbText = itemView.findViewById(R.id.childPbText);
+                adherenceText = itemView.findViewById(R.id.childAdherenceText);
 
                 editButton = itemView.findViewById(R.id.editButton);
                 deleteButton = itemView.findViewById(R.id.deleteButton);

@@ -18,13 +18,6 @@ public class AlertManager {
 
     private static final String TAG = "AlertManager";
 
-    // Alert types
-    public static final String TYPE_RED_ZONE = "RED_ZONE_DAY";
-    public static final String TYPE_RAPID_RESCUE = "RAPID_RESCUE";
-    public static final String TYPE_TRIAGE_ESCALATION = "TRIAGE_ESCALATION";
-    public static final String TYPE_INVENTORY_LOW = "INVENTORY_LOW";
-    public static final String TYPE_INVENTORY_EXPIRED = "INVENTORY_EXPIRED";
-
     private static AlertManager instance;
 
     private final Context appContext;
@@ -35,23 +28,17 @@ public class AlertManager {
     private final DatabaseReference inventoryRef;
     private final DatabaseReference alertsRef;
 
-    // listener structures
     private final Map<String, ChildListeners> childListeners = new HashMap<>();
 
-    // for throttling alerts
     private final Map<String, Long> lastAlertTime = new HashMap<>();
 
     private ValueEventListener parentChildListener;
     private OnAlertListener uiListener;
 
-    // callback for UI if needed
     public interface OnAlertListener {
         void onAlert(AlertRecord alert);
     }
 
-    // ----------------------------------------------------------------------------------------
-    // Singleton init
-    // ----------------------------------------------------------------------------------------
     public static synchronized AlertManager init(Context context, String parentId) {
         if (instance == null) {
             instance = new AlertManager(context.getApplicationContext(), parentId);
@@ -84,9 +71,6 @@ public class AlertManager {
         this.uiListener = listener;
     }
 
-    // ----------------------------------------------------------------------------------------
-    // Attach/detach parent-level child list listener
-    // ----------------------------------------------------------------------------------------
     private void attachParentChildListener() {
         if (parentChildListener != null) return;
 
@@ -107,7 +91,6 @@ public class AlertManager {
                     }
                 }
 
-                // clean removed children
                 for (String id : new HashMap<>(childListeners).keySet()) {
                     if (!found.containsKey(id)) {
                         detachChildListeners(id);
@@ -133,33 +116,15 @@ public class AlertManager {
         }
     }
 
-    // ----------------------------------------------------------------------------------------
-    // Attach per-child listeners
-    // ----------------------------------------------------------------------------------------
     private void attachChildListeners(String childId) {
         ChildListeners cl = new ChildListeners();
         cl.childId = childId;
 
-        // PEF listener
-        cl.pefRef = childrenRef.child(childId).child("logs").child("pef");
-        cl.pefListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                handlePefUpdate(childId, snapshot);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        };
-        cl.pefRef.addValueEventListener(cl.pefListener);
-
-        // rescue listener
-        cl.rescueRef = childrenRef.child(childId).child("logs")
-                .child("medication").child("rescue");
+        cl.rescueRef = childrenRef.child(childId).child("logs").child("medication").child("rescue");
         cl.rescueListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                handleRescueUpdate(childId, snapshot);
+                handleRapidRescue(childId, snapshot);
             }
 
             @Override
@@ -167,20 +132,18 @@ public class AlertManager {
         };
         cl.rescueRef.addValueEventListener(cl.rescueListener);
 
-        // triage listener
-        cl.triageRef = childrenRef.child(childId).child("logs").child("triage");
-        cl.triageListener = new ValueEventListener() {
+        cl.postRef = childrenRef.child(childId).child("logs").child("post");
+        cl.postListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                handleTriageUpdate(childId, snapshot);
+                handleWorseAfterDose(childId, snapshot);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         };
-        cl.triageRef.addValueEventListener(cl.triageListener);
+        cl.postRef.addValueEventListener(cl.postListener);
 
-        // inventory listener
         cl.inventoryRef = inventoryRef.child(childId);
         cl.inventoryListener = new ValueEventListener() {
             @Override
@@ -200,14 +163,11 @@ public class AlertManager {
         ChildListeners cl = childListeners.remove(childId);
         if (cl == null) return;
 
-        if (cl.pefRef != null && cl.pefListener != null)
-            cl.pefRef.removeEventListener(cl.pefListener);
-
         if (cl.rescueRef != null && cl.rescueListener != null)
             cl.rescueRef.removeEventListener(cl.rescueListener);
 
-        if (cl.triageRef != null && cl.triageListener != null)
-            cl.triageRef.removeEventListener(cl.triageListener);
+        if (cl.postRef != null && cl.postListener != null)
+            cl.postRef.removeEventListener(cl.postListener);
 
         if (cl.inventoryRef != null && cl.inventoryListener != null)
             cl.inventoryRef.removeEventListener(cl.inventoryListener);
@@ -219,78 +179,42 @@ public class AlertManager {
         }
     }
 
-    // ----------------------------------------------------------------------------------------
-    // ALERT HANDLERS
-    // ----------------------------------------------------------------------------------------
-
-    private void handlePefUpdate(String childId, DataSnapshot pefSnap) {
-        final long[] latestTs = { -1 };
-        final Long[] latestPef = { null };
-
-        for (DataSnapshot row : pefSnap.getChildren()) {
-            Long ts = row.child("timestamp").getValue(Long.class);
-            Long val = row.child("pef").getValue(Long.class);
-            if (ts == null || val == null) continue;
-
-            if (ts > latestTs[0]) {
-                latestTs[0] = ts;
-                latestPef[0] = val;
-            }
-        }
-
-        if (latestPef[0] == null) return;
-
-        childrenRef.child(childId).child("pb")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot s) {
-                        Long pb = s.getValue(Long.class);
-                        if (pb == null || pb == 0) return;
-
-                        double pct = (latestPef[0] * 100.0) / pb;
-
-                        if (pct < 50.0) {
-                            pushAlert(childId, TYPE_RED_ZONE,
-                                    "PEF is in the RED ZONE for child " + childId,
-                                    "HIGH",
-                                    60 * 60 * 1000L);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {}
-                });
-
-    }
-
-    private void handleRescueUpdate(String childId, DataSnapshot rescueSnap) {
+    private void handleRapidRescue(String childId, DataSnapshot rescueSnap) {
         long now = System.currentTimeMillis();
-        long win = 3L * 60 * 60 * 1000;
+        long window = 3L * 60 * 60 * 1000;
 
         int count = 0;
         for (DataSnapshot row : rescueSnap.getChildren()) {
             Long ts = row.child("timestamp").getValue(Long.class);
-            if (ts != null && ts >= now - win) count++;
+            if (ts != null && ts >= now - window) count++;
         }
 
         if (count >= 3) {
-            pushAlert(childId, TYPE_RAPID_RESCUE,
-                    "Rapid rescue usage (≥3 in 3 hours)",
-                    "HIGH",
-                    60 * 60 * 1000L);
+            pushAlert(childId,
+                    "Rapid rescue usage (≥3 times within 3 hours)");
         }
     }
 
-    private void handleTriageUpdate(String childId, DataSnapshot triageSnap) {
-        for (DataSnapshot row : triageSnap.getChildren()) {
-            Boolean trouble = row.child("troubleBreathing").getValue(Boolean.class);
-            if (trouble != null && trouble) {
-                pushAlert(childId, TYPE_TRIAGE_ESCALATION,
-                        "Triage escalation: trouble breathing",
-                        "CRITICAL",
-                        10 * 60 * 1000L);
-                return;
+    private void handleWorseAfterDose(String childId, DataSnapshot postSnap) {
+        long latest = -1;
+        String latestPost = null;
+
+        for (DataSnapshot row : postSnap.getChildren()) {
+            Long ts = row.child("timestamp").getValue(Long.class);
+            String status = row.child("post").getValue(String.class);
+            if (ts == null || status == null) continue;
+
+            if (ts > latest) {
+                latest = ts;
+                latestPost = status;
             }
+        }
+
+        if (latestPost == null) return;
+
+        if (latestPost.equalsIgnoreCase("worse")) {
+            pushAlert(childId,
+                    "Child reported feeling worse after medication");
         }
     }
 
@@ -302,115 +226,66 @@ public class AlertManager {
     private void checkInventory(String childId, String type, DataSnapshot snap) {
         Long amountLeft = snap.child("amountLeft").getValue(Long.class);
         Long expiry = snap.child("expiryDate").getValue(Long.class);
+
         long now = System.currentTimeMillis();
 
         if (amountLeft != null && amountLeft <= 20) {
-            pushAlert(childId, TYPE_INVENTORY_LOW + "_" + type,
-                    type + " medication low: " + amountLeft + " doses left",
-                    "MEDIUM",
-                    6L * 60 * 60 * 1000L);
+            pushAlert(childId,
+                    type + " medication low (" + amountLeft + " left)");
         }
 
         if (expiry != null && now >= expiry) {
-            pushAlert(childId, TYPE_INVENTORY_EXPIRED + "_" + type,
-                    type + " medication is expired",
-                    "HIGH",
-                    24L * 60 * 60 * 1000L);
+            pushAlert(childId,
+                    type + " medication is expired");
         }
     }
 
-    private void handlePostDoseUpdate(String childId, DataSnapshot medicationSnap) {
 
-        long latestTs = -1;
-        String latestPost = null;
-
-        // Loop rescue and controller nodes
-        for (DataSnapshot medType : medicationSnap.getChildren()) {
-
-            for (DataSnapshot doseSnap : medType.getChildren()) {
-                Long ts = doseSnap.child("timestamp").getValue(Long.class);
-                String post = doseSnap.child("post").getValue(String.class);
-
-                if (ts == null || post == null) continue;
-
-                if (ts > latestTs) {
-                    latestTs = ts;
-                    latestPost = post;
-                }
-            }
-        }
-
-        if (latestPost == null) return;
-
-        if (latestPost.equalsIgnoreCase("worse")) {
-            pushAlert(
-                    childId,
-                    TYPE_WORSE_AFTER_DOSE,
-                    "Child " + childId + " is worse after medication dose",
-                    "HIGH",
-                    60 * 60 * 1000L   // throttle: 1 hour
-            );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------------
-    // PUSH ALERT
-    // ----------------------------------------------------------------------------------------
-    private void pushAlert(String childId,
-                           String type,
-                           String message,
-                           String severity,
-                           long throttleMs) {
+    private void pushAlert(String childId, String message) {
 
         long now = System.currentTimeMillis();
-        String key = childId + "_" + type;
+        String key = childId + "_" + message;
 
         Long last = lastAlertTime.get(key);
-        if (last != null && now - last < throttleMs) return;
+        if (last != null && now - last < 10 * 60 * 1000L) return;
 
         lastAlertTime.put(key, now);
 
-        AlertRecord alert = new AlertRecord();
-        alert.childId = childId;
-        alert.type = type;
-        alert.message = message;
-        alert.severity = severity;
-        alert.timestamp = now;
+        String id = alertsRef.push().getKey();
+        if (id == null) return;
 
-        alertsRef.push().setValue(alert);
-        Log.d(TAG, "Alert: " + type + " for child " + childId);
+        Map<String, Object> alertData = new HashMap<>();
+        alertData.put("message", message);
+        alertData.put("timestamp", now);
+        alertData.put("seen", false);
+        alertData.put("childId", childId);
 
-        if (uiListener != null) uiListener.onAlert(alert);
+        alertsRef.child(id).setValue(alertData);
+
+        AlertRecord record = new AlertRecord();
+        record.message = message;
+        record.timestamp = now;
+        record.childId = childId;
+
+        if (uiListener != null) uiListener.onAlert(record);
     }
 
-    // ----------------------------------------------------------------------------------------
-    // POJOS
-    // ----------------------------------------------------------------------------------------
     public static class AlertRecord {
-        public String childId;
-        public String type;
         public String message;
-        public String severity;
         public long timestamp;
-
-        public AlertRecord() {}
+        public String childId;
     }
 
     private static class ChildListeners {
         String childId;
 
-        DatabaseReference pefRef;
-        ValueEventListener pefListener;
-
         DatabaseReference rescueRef;
         ValueEventListener rescueListener;
 
-        DatabaseReference triageRef;
-        ValueEventListener triageListener;
+        DatabaseReference postRef;
+        ValueEventListener postListener;
 
         DatabaseReference inventoryRef;
         ValueEventListener inventoryListener;
     }
-
-    public static final String TYPE_WORSE_AFTER_DOSE = "WORSE_AFTER_DOSE";
 }

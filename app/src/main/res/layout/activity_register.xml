@@ -73,12 +73,6 @@
                 android:text="Provider"
                 android:layout_marginStart="16dp" />
 
-            <RadioButton
-                android:id="@+id/radioChild"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Child"
-                android:layout_marginStart="16dp" />
         </RadioGroup>
 
         <Button

@@ -25,10 +25,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="SMART AIR - PROVIDER"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.022" />
 
@@ -42,7 +40,7 @@
         android:text="Provider Report"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView12" />
+        app:layout_constraintTop_toBottomOf="@id/textView12" />
 
     <TextView
         android:id="@+id/readOnlyNotice"
@@ -53,9 +51,9 @@
         android:textSize="12sp"
         android:textStyle="italic"
         android:textColor="#666666"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView6" />
 
     <TextView
         android:id="@+id/providerReportChildLabel"
@@ -66,7 +64,7 @@
         android:text="Select Child:"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/readOnlyNotice" />
+        app:layout_constraintTop_toBottomOf="@id/readOnlyNotice" />
 
     <Spinner
         android:id="@+id/providerReportChildSelector"
@@ -75,9 +73,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/providerReportChildLabel"
-        app:layout_constraintTop_toBottomOf="@+id/readOnlyNotice" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/readOnlyNotice" />
 
     <TextView
         android:id="@+id/providerReportChildHint"
@@ -89,16 +87,37 @@
         android:text="Preview shared data for the selected child."
         android:textColor="#666666"
         android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/providerReportChildSelector" />
+
+    <TextView
+        android:id="@+id/reportRangeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Report Range:"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/providerReportChildHint" />
+
+    <Spinner
+        android:id="@+id/reportRangeSelector"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintStart_toEndOf="@id/reportRangeLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/reportRangeLabel" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/providerReportChildHint">
+        app:layout_constraintTop_toBottomOf="@id/reportRangeSelector"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -123,21 +142,20 @@
                 app:contentPadding="12dp">
 
                 <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Rescue Frequency"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                     <TextView
                         android:id="@+id/rescueFrequencyText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Data will be displayed here"
                         android:layout_marginTop="8dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -151,21 +169,20 @@
                 app:contentPadding="12dp">
 
                 <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Controller Adherence"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                     <TextView
                         android:id="@+id/adherenceText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="% of planned days completed"
                         android:layout_marginTop="8dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -179,21 +196,20 @@
                 app:contentPadding="12dp">
 
                 <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Symptom Burden"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                     <TextView
                         android:id="@+id/symptomBurdenText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Counts of problem days"
                         android:layout_marginTop="8dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -207,21 +223,20 @@
                 app:contentPadding="12dp">
 
                 <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Zone Distribution"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                     <TextView
                         android:id="@+id/zoneDistributionText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Zone distribution over time"
                         android:layout_marginTop="8dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -235,21 +250,20 @@
                 app:contentPadding="12dp">
 
                 <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Notable Triage Incidents"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                     <TextView
                         android:id="@+id/triageIncidentsText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Triage incidents (if sharing enabled)"
                         android:layout_marginTop="8dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -258,49 +272,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:layout_marginTop="16dp"
                 app:cardCornerRadius="10dp"
                 app:cardElevation="4dp"
                 app:contentPadding="12dp">
 
                 <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Charts &amp; Visualizations"
+                        android:text="Charts and Visualizations"
                         android:textStyle="bold"
-                        android:textSize="16sp" />
-
-                    <TextView
+                        android:textSize="16sp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Time-series chart: Rescue usage over time"
-                        android:layout_marginTop="8dp" />
+                        android:layout_height="wrap_content" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Categorical chart: Zone distribution (bar/pie)"
-                        android:layout_marginTop="4dp"
-                        android:textSize="14sp"
-                        android:textColor="#666666" />
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/rescueChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="230dp"
+                        android:layout_marginTop="16dp" />
+
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/zoneChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="230dp"
+                        android:layout_marginTop="24dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/exportPdfBtn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Export PDF"
+                android:layout_marginBottom="12dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Note: This report covers 3-6 months of shared data. Export as PDF/CSV available from parent app."
+                android:text="Note: This report covers data in the selected range."
                 android:textSize="12sp"
                 android:textStyle="italic"
                 android:textColor="#999999"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="4dp" />
         </LinearLayout>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

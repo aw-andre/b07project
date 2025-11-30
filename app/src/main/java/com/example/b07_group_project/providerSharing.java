@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.b07_group_project.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +28,8 @@ import java.util.Random;
 
 public class providerSharing extends AppCompatActivity {
 
-    private static final String PARENT_ID = "parent123";
+    //private static final String PARENT_ID = "parent123";
+    private static final String PARENT_ID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     private TextView inviteCodeText;
     private TextView inviteCodeTimestamp;

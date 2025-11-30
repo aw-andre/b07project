@@ -1,34 +1,32 @@
 package com.example.b07_group_project;
 
-import static android.widget.VideoView.*;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.MediaController;
+import android.widget.Toast;
 import android.widget.VideoView;
+import android.widget.Button;
+import android.widget.CheckBox;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+
 import java.util.HashMap;
 import java.util.Map;
-import android.widget.Toast;
-import android.widget.Button;
-import android.widget.CheckBox;
 
 public class techniqueHelper extends AppCompatActivity {
 
     private CheckBox checkBox, checkBox3, checkBox4, checkBox5, checkBox8, checkBox9;
     private Button submitButton;
+
+    private String CHILD_ID;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -36,21 +34,24 @@ public class techniqueHelper extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.techniquehelper);
 
+        CHILD_ID = getIntent().getStringExtra("childId");
+        if (CHILD_ID == null || CHILD_ID.isEmpty()) {
+            Toast.makeText(this, "Child ID missing.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         ImageButton button = findViewById(R.id.imageButton4);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(techniqueHelper.this, childUserInterfaceHome.class);
-                startActivity(intent);
-            }
+        button.setOnClickListener(v -> {
+            Intent intent = new Intent(techniqueHelper.this, childUserInterfaceHome.class);
+            intent.putExtra("childId", CHILD_ID);
+            startActivity(intent);
         });
 
         VideoView videoView = findViewById(R.id.videoView3);
-
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(findViewById(R.id.scrollView2));
         mediaController.setMediaPlayer(videoView);
-
         videoView.setMediaController(mediaController);
         videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.asthma_video));
         videoView.start();
@@ -61,37 +62,44 @@ public class techniqueHelper extends AppCompatActivity {
         checkBox5 = findViewById(R.id.checkBox5);
         checkBox8 = findViewById(R.id.checkBox8);
         checkBox9 = findViewById(R.id.checkBox9);
-        submitButton = findViewById(R.id.button6);
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendTechniqueDataToFirebase();
-            }
-        });
+        submitButton = findViewById(R.id.button6);
+        submitButton.setOnClickListener(v -> sendTechniqueDataToFirebase());
     }
 
     private void sendTechniqueDataToFirebase() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
-        if (userId == null) {
-            Toast.makeText(techniqueHelper.this, "User not logged in.", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("children").child(userId).child("techniqueChecklist");
-        DatabaseReference newSubmissionRef = databaseRef.push();
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("children")
+                .child(CHILD_ID)
+                .child("logs")
+                .child("techniqueSession");
 
-        Map<String, Object> checklistData = new HashMap<>();
-        checklistData.put("shakeInhaler", checkBox.isChecked());
-        checklistData.put("removeCap", checkBox3.isChecked());
-        checklistData.put("exhaleDeeply", checkBox4.isChecked());
-        checklistData.put("pressAndInhale", checkBox5.isChecked());
-        checklistData.put("holdBreath", checkBox8.isChecked());
-        checklistData.put("exhaleSlowly", checkBox9.isChecked());
-        checklistData.put("timestamp", ServerValue.TIMESTAMP);
+        DatabaseReference newRef = ref.push();
 
-        newSubmissionRef.setValue(checklistData)
-                .addOnSuccessListener(aVoid -> Toast.makeText(techniqueHelper.this, "Checklist submitted successfully!", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(techniqueHelper.this, "Failed to submit checklist: " + e.getMessage(), Toast.LENGTH_LONG).show());
+        boolean shake = checkBox.isChecked();
+        boolean cap = checkBox3.isChecked();
+        boolean exhale = checkBox4.isChecked();
+        boolean press = checkBox5.isChecked();
+        boolean hold = checkBox8.isChecked();
+        boolean slow = checkBox9.isChecked();
+
+        boolean allCorrect = shake && cap && exhale && press && hold && slow;
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("shakeInhaler", shake);
+        data.put("removeCap", cap);
+        data.put("exhaleDeeply", exhale);
+        data.put("pressAndInhale", press);
+        data.put("holdBreath", hold);
+        data.put("exhaleSlowly", slow);
+        data.put("allStepsCorrect", allCorrect);
+        data.put("timestamp", ServerValue.TIMESTAMP);
+
+        newRef.setValue(data)
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(techniqueHelper.this, "Checklist submitted successfully!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(techniqueHelper.this, "Failed to submit checklist: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 }

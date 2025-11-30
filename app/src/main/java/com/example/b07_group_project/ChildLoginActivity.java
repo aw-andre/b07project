@@ -4,100 +4,74 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.*;
 
 public class ChildLoginActivity extends AppCompatActivity {
 
-    private EditText emailField, passwordField;
-    private Button loginButton, registerButton;
-    private TextView forgotPassword;
-    private FirebaseAuth auth;
+    private EditText childIdField;
+    private Button loginButton;
+
+    private DatabaseReference childrenRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child_login);
 
-        auth = FirebaseAuth.getInstance();
-
-        emailField = findViewById(R.id.editTextEmail);
-        passwordField = findViewById(R.id.editTextPassword);
+        childIdField = findViewById(R.id.editTextEmail); // Reuse existing ID
         loginButton = findViewById(R.id.btnChildLogin);
-        registerButton = findViewById(R.id.btnChildRegister);
-        forgotPassword = findViewById(R.id.textForgotPassword);
+
+        childrenRef = FirebaseDatabase.getInstance().getReference("children");
 
         loginButton.setOnClickListener(v -> attemptLogin());
-        registerButton.setOnClickListener(v -> openRegisterScreen());
-        if (forgotPassword != null) {
-            forgotPassword.setOnClickListener(v -> sendPasswordReset());
-        }
     }
 
     private void attemptLogin() {
-        String email = emailField.getText().toString().trim();
-        String password = passwordField.getText().toString().trim();
+        String childId = childIdField.getText().toString().trim();
 
-        if (email.isEmpty()) {
-            emailField.setError("Email is required");
-            emailField.requestFocus();
-            return;
-        }
-        if (password.isEmpty()) {
-            passwordField.setError("Password is required");
-            passwordField.requestFocus();
-            return;
-        }
-        if (password.length() < 6) {
-            passwordField.setError("Min 6 characters");
-            passwordField.requestFocus();
+        if (childId.isEmpty()) {
+            childIdField.setError("ChildID is required");
+            childIdField.requestFocus();
             return;
         }
 
         loginButton.setEnabled(false);
 
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    loginButton.setEnabled(true);
-                    if (task.isSuccessful()) {
+        childrenRef.child(childId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        loginButton.setEnabled(true);
+
+                        if (!snapshot.exists()) {
+                            Toast.makeText(ChildLoginActivity.this,
+                                    "Invalid ChildID", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         Intent i = new Intent(ChildLoginActivity.this, childUserInterfaceHome.class);
-                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        i.putExtra("childId", childId);
                         startActivity(i);
-                    } else {
-                        String msg = (task.getException() != null && task.getException().getMessage() != null)
-                                ? task.getException().getMessage()
-                                : "Login failed";
-                        Toast.makeText(ChildLoginActivity.this, msg, Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        loginButton.setEnabled(true);
+                        Toast.makeText(ChildLoginActivity.this,
+                                "Login failed: " + error.getMessage(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-    private void sendPasswordReset() {
-        String email = emailField.getText().toString().trim();
-        if (email.isEmpty()) {
-            emailField.setError("Enter your email first");
-            emailField.requestFocus();
-            return;
-        }
-        auth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Reset link sent", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(this, "Could not send reset email", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void openRegisterScreen() {
-        Intent i = new Intent(ChildLoginActivity.this, RegisterActivity.class);
-        startActivity(i);
     }
 }
+
 
 
 

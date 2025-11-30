@@ -39,21 +39,19 @@ android {
 }
 
 dependencies {
-    // Firebase BoM – centralizes Firebase versions
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
 
-    // Firebase products
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-database")   // ← ADD THIS
+    implementation("com.google.firebase:firebase-database")
 
-    // AndroidX + UI
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.cardview)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -10,211 +10,231 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneId;
-import java.util.Collections;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class badges extends AppCompatActivity {
 
     private ImageView bronzeTrophy, silverTrophy, goldTrophy;
     private DatabaseReference childRef;
-    private int lowRescueMonthThreshold = 4; // Default value
-    private int techniqueSessionsThreshold = 10; // Default value
+
+    private int lowRescueMonthThreshold = 4;
+    private int techniqueSessionsThreshold = 10;
+    private int adherenceValue = 0;
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.badges);
 
-        // Back button
         ImageButton backButton = findViewById(R.id.imageButton3);
-        backButton.setOnClickListener(v -> {
-            Intent intent = new Intent(badges.this, childUserInterfaceHome.class);
-            startActivity(intent);
-        });
+        backButton.setOnClickListener(v -> finish());
 
-        // Initialize ImageViews
         bronzeTrophy = findViewById(R.id.imageView5);
         silverTrophy = findViewById(R.id.imageView6);
         goldTrophy = findViewById(R.id.imageView7);
 
-        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
-        if (userId == null) {
-            Toast.makeText(badges.this, "User not logged in.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // test id
+        //String childId = "-OerA9MC_EiCnwvC-CVQ";
 
-        // Get reference to the child's data in Firebase
+        String childId = getIntent().getStringExtra("childId");
+        if (childId == null) return;
+
         childRef = FirebaseDatabase.getInstance()
-                .getReference()
-                .child("children")
-                .child(userId);
+                .getReference("children")
+                .child(childId);
 
-        // Retrieve badge settings
-        childRef.child("badgeSettings").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    Integer lowRescue = snapshot.child("lowRescueMonthThreshold").getValue(Integer.class);
-                    Integer techniqueSessions = snapshot.child("techniqueSessionsThreshold").getValue(Integer.class);
+        childRef.child("badgeSettings").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot s) {
+                        Integer lowRescue = s.child("lowRescueMonthThreshold").getValue(Integer.class);
+                        Integer technique = s.child("techniqueSessionsThreshold").getValue(Integer.class);
 
-                    if (lowRescue != null) {
-                        lowRescueMonthThreshold = lowRescue;
+                        if (lowRescue != null) lowRescueMonthThreshold = lowRescue;
+                        if (technique != null) techniqueSessionsThreshold = technique;
+
+                        loadAdherenceAndProceed();
                     }
-                    if (techniqueSessions != null) {
-                        techniqueSessionsThreshold = techniqueSessions;
-                    }
-                }
-                // After settings are loaded, check badges
-                checkBronzeBadge();
-                checkSilverBadge();
-                checkGoldBadge();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(badges.this, "Failed to load badge settings.", Toast.LENGTH_SHORT).show();
-                // Even if settings fail to load, try to check badges with default values
-                checkBronzeBadge();
-                checkSilverBadge();
-                checkGoldBadge();
-            }
-        });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        loadAdherenceAndProceed();
+                    }
+                });
+    }
+
+    private void loadAdherenceAndProceed() {
+        childRef.child("adherence").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot s) {
+                        Integer a = s.getValue(Integer.class);
+                        if (a != null) adherenceValue = a;
+
+                        checkBronzeBadge();
+                        checkSilverBadge();
+                        checkGoldBadge();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        checkBronzeBadge();
+                        checkSilverBadge();
+                        checkGoldBadge();
+                    }
+                });
     }
 
     private void checkBronzeBadge() {
-        DatabaseReference controlLogsRef = childRef.child("controlLogs");
-        controlLogsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Set<LocalDate> logDates = new HashSet<>();
-                for (DataSnapshot logSnapshot : snapshot.getChildren()) {
-                    Long timestamp = logSnapshot.child("timestamp").getValue(Long.class);
-                    if (timestamp != null) {
-                        logDates.add(Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDate());
+
+        DatabaseReference controllerRef =
+                childRef.child("logs").child("medication").child("controller");
+
+        controllerRef.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        Map<String, Integer> dailyCount = new HashMap<>();
+
+                        for (DataSnapshot s : snapshot.getChildren()) {
+                            Long ts = s.child("timestamp").getValue(Long.class);
+                            if (ts == null) continue;
+
+                            String dateKey = dateFormat.format(new Date(ts));
+                            int c = dailyCount.containsKey(dateKey) ? dailyCount.get(dateKey) : 0;
+                            dailyCount.put(dateKey, c + 1);
+                        }
+
+                        // adherenceValue must be matched exactly
+                        List<String> goodDays = new ArrayList<>();
+
+                        for (String d : dailyCount.keySet()) {
+                            if (dailyCount.get(d) == adherenceValue) {
+                                goodDays.add(d);
+                            }
+                        }
+
+                        java.util.Collections.sort(goodDays);
+
+                        if (hasSevenDayStreak(goodDays)) {
+                            bronzeTrophy.setVisibility(View.VISIBLE);
+                        }
                     }
-                }
 
-                if (hasSevenDayStreak(logDates)) {
-                    bronzeTrophy.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(badges.this, "Failed to load control logs.", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
     }
 
-    private boolean hasSevenDayStreak(Set<LocalDate> dates) {
-        if (dates.size() < 7) {
-            return false;
-        }
-        List<LocalDate> sortedDates = dates.stream().sorted().collect(Collectors.toList());
-        for (int i = 0; i <= sortedDates.size() - 7; i++) {
-            boolean isStreak = true;
+    private boolean hasSevenDayStreak(List<String> list) {
+        if (list.size() < 7) return false;
+
+        for (int i = 0; i <= list.size() - 7; i++) {
+            boolean ok = true;
             for (int j = 0; j < 6; j++) {
-                if (!sortedDates.get(i + j).plusDays(1).equals(sortedDates.get(i + j + 1))) {
-                    isStreak = false;
+                if (!isNextDay(list.get(i + j), list.get(i + j + 1))) {
+                    ok = false;
                     break;
                 }
             }
-            if (isStreak) {
-                return true;
-            }
+            if (ok) return true;
         }
         return false;
     }
 
+    private boolean isNextDay(String a, String b) {
+        try {
+            Date da = dateFormat.parse(a);
+            Date db = dateFormat.parse(b);
+
+            Calendar c = Calendar.getInstance();
+            c.setTime(da);
+            c.add(Calendar.DAY_OF_YEAR, 1);
+
+            return dateFormat.format(c.getTime()).equals(b);
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
     private void checkSilverBadge() {
-        DatabaseReference checklistLogsRef = childRef.child("techniqueChecklist");
-        checklistLogsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int perfectSessions = 0;
-                for (DataSnapshot logSnapshot : snapshot.getChildren()) {
-                    Boolean shookInhaler = logSnapshot.child("shakeInhaler").getValue(Boolean.class);
-                    Boolean removedCap = logSnapshot.child("removeCap").getValue(Boolean.class);
-                    Boolean exhaledDeeply = logSnapshot.child("exhaleDeeply").getValue(Boolean.class);
-                    Boolean pressedWhileInhaling = logSnapshot.child("pressAndInhale").getValue(Boolean.class);
-                    Boolean heldBreath = logSnapshot.child("holdBreath").getValue(Boolean.class);
-                    Boolean exhaledSlowly = logSnapshot.child("exhaleSlowly").getValue(Boolean.class);
 
-                    if (Boolean.TRUE.equals(shookInhaler) &&
-                        Boolean.TRUE.equals(removedCap) &&
-                        Boolean.TRUE.equals(exhaledDeeply) &&
-                        Boolean.TRUE.equals(pressedWhileInhaling) &&
-                        Boolean.TRUE.equals(heldBreath) &&
-                        Boolean.TRUE.equals(exhaledSlowly)) {
-                        perfectSessions++;
+        DatabaseReference techRef =
+                childRef.child("logs").child("techniqueSession");
+
+        techRef.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        int count = 0;
+
+                        for (DataSnapshot s : snapshot.getChildren()) {
+                            Boolean ok = s.child("allStepsCorrect").getValue(Boolean.class);
+                            if (Boolean.TRUE.equals(ok)) {
+                                count++;
+                            }
+                        }
+
+                        if (count >= techniqueSessionsThreshold) {
+                            silverTrophy.setVisibility(View.VISIBLE);
+                        }
                     }
-                }
 
-                if (perfectSessions >= techniqueSessionsThreshold) {
-                    silverTrophy.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(badges.this, "Failed to load technique checklist logs.", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
     }
 
     private void checkGoldBadge() {
-        DatabaseReference rescueLogsRef = childRef.child("rescueLogs");
-        rescueLogsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Map<YearMonth, Integer> monthlyCounts = new HashMap<>();
-                for (DataSnapshot logSnapshot : snapshot.getChildren()) {
-                    Long timestamp = logSnapshot.child("timestamp").getValue(Long.class);
-                    if (timestamp != null) {
-                        YearMonth ym = YearMonth.from(Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDate());
-                        monthlyCounts.put(ym, monthlyCounts.getOrDefault(ym, 0) + 1);
-                    }
-                }
 
-                // Condition: less than three rescue sessions in ANY one month
-                // This means if even one month has < lowRescueMonthThreshold sessions, they get the badge.
-                boolean conditionMet = false;
-                if (monthlyCounts.isEmpty()) {
-                    conditionMet = true; // No logs means 0 logs, which is < lowRescueMonthThreshold
-                } else {
-                    for (Integer count : monthlyCounts.values()) {
-                        if (count < lowRescueMonthThreshold) {
-                            conditionMet = true;
-                            break;
+        DatabaseReference rescueRef =
+                childRef.child("logs").child("medication").child("rescue");
+
+        rescueRef.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        long now = System.currentTimeMillis();
+                        long thirtyDaysAgo = now - (30L * 24 * 60 * 60 * 1000);
+
+                        int recentCount = 0;
+
+                        for (DataSnapshot s : snapshot.getChildren()) {
+                            Long ts = s.child("timestamp").getValue(Long.class);
+                            if (ts != null && ts >= thirtyDaysAgo) {
+                                recentCount++;
+                            }
+                        }
+
+                        if (recentCount <= lowRescueMonthThreshold) {
+                            goldTrophy.setVisibility(View.VISIBLE);
                         }
                     }
-                }
 
-                if (conditionMet) {
-                    goldTrophy.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(badges.this, "Failed to load rescue logs.", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
     }
 }
+

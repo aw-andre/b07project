@@ -45,7 +45,10 @@ public class emergencyContacts extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.emergencycontacts);
 
-        parentId = "parent123"; // Replace after integrating authentication
+        //parentId = "parent123"; // Replace after integrating authentication
+        parentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (parentId == null) return;
+
         childrenRef = FirebaseDatabase.getInstance().getReference("children");
 
         ImageButton backButton = findViewById(R.id.imageButton);

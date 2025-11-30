@@ -12,10 +12,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -25,11 +27,11 @@ public class RegisterActivity extends AppCompatActivity {
     private RadioGroup radioGroupRole;
     private RadioButton radioParent;
     private RadioButton radioProvider;
-    private RadioButton radioChild;
     private Button buttonRegister;
     private ProgressBar progressBar;
 
     private FirebaseAuth auth;
+    private DatabaseReference usersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         auth = FirebaseAuth.getInstance();
+        usersRef = FirebaseDatabase.getInstance().getReference("users");
 
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
@@ -44,27 +47,13 @@ public class RegisterActivity extends AppCompatActivity {
         radioGroupRole = findViewById(R.id.radioGroupRole);
         radioParent = findViewById(R.id.radioParent);
         radioProvider = findViewById(R.id.radioProvider);
-        radioChild = findViewById(R.id.radioChild);
         buttonRegister = findViewById(R.id.buttonRegister);
         progressBar = findViewById(R.id.progressBar);
 
-        // Preselect role based on the screen we came from (optional, but nicer UX)
         String preselectedRole = getIntent().getStringExtra("role");
         if (preselectedRole != null) {
-            switch (preselectedRole) {
-                case "parent":
-                    radioParent.setChecked(true);
-                    break;
-                case "provider":
-                    radioProvider.setChecked(true);
-                    break;
-                case "child":
-                    radioChild.setChecked(true);
-                    break;
-                default:
-                    // no-op; user can choose manually
-                    break;
-            }
+            if (preselectedRole.equals("parent")) radioParent.setChecked(true);
+            if (preselectedRole.equals("provider")) radioProvider.setChecked(true);
         }
 
         buttonRegister.setOnClickListener(v -> attemptRegistration());
@@ -83,36 +72,36 @@ public class RegisterActivity extends AppCompatActivity {
         setLoading(true);
 
         auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        setLoading(false);
+                .addOnCompleteListener(this, task -> {
+                    setLoading(false);
 
-                        if (task.isSuccessful()) {
-                            // User created in Firebase Authentication
-                            Toast.makeText(
-                                    RegisterActivity.this,
-                                    "Registration successful. You can now log in.",
-                                    Toast.LENGTH_LONG
-                            ).show();
+                    if (task.isSuccessful()) {
 
-                            // TODO (team): store role / profile in DB (Realtime DB or Firestore) using auth.getCurrentUser().getUid()
+                        String uid = auth.getCurrentUser().getUid();
 
-                            // For now, just go back to the previous screen (e.g., role-specific login)
-                            finish();
+                        HashMap<String, Object> profile = new HashMap<>();
+                        profile.put("email", email);
+                        profile.put("role", role.toUpperCase());
 
-                        } else {
-                            String message = "Registration failed.";
-                            if (task.getException() != null &&
-                                    task.getException().getMessage() != null) {
-                                message = task.getException().getMessage();
-                            }
-                            Toast.makeText(
-                                    RegisterActivity.this,
-                                    message,
-                                    Toast.LENGTH_LONG
-                            ).show();
+                        if (role.equals("provider")) {
+                            profile.put("linkedChildren", new HashMap<String, Boolean>());
                         }
+
+                        usersRef.child(uid).setValue(profile);
+
+                        Toast.makeText(RegisterActivity.this,
+                                "Registration successful. You can now log in.",
+                                Toast.LENGTH_LONG).show();
+
+                        finish();
+
+                    } else {
+                        String message = "Registration failed.";
+                        if (task.getException() != null &&
+                                task.getException().getMessage() != null) {
+                            message = task.getException().getMessage();
+                        }
+                        Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -156,11 +145,8 @@ public class RegisterActivity extends AppCompatActivity {
             return "parent";
         } else if (checkedId == R.id.radioProvider) {
             return "provider";
-        } else if (checkedId == R.id.radioChild) {
-            return "child";
-        } else {
-            return null;
         }
+        return null;
     }
 
     private void setLoading(boolean loading) {
@@ -173,5 +159,6 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 }
+
 
 
