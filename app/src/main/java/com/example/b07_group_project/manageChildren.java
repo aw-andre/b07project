@@ -1,6 +1,7 @@
 package com.example.b07_group_project;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +48,8 @@ public class manageChildren extends AppCompatActivity {
     private TextView emptyStateText;
     private Button addChildButton;
     private final List<ListenerRecord> activeListeners = new ArrayList<>();
+    private final SimpleDateFormat dobFormat =
+            new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,10 +145,9 @@ public class manageChildren extends AppCompatActivity {
         EditText pbInput = dialogView.findViewById(R.id.childPbInput);
         EditText adherenceInput = dialogView.findViewById(R.id.childAdherenceInput);
 
-        dobInput.setOnClickListener(v ->
-                dobInput.setText(new SimpleDateFormat("yyyy-MM-dd",
-                        Locale.getDefault()).format(new Date()))
-        );
+        dobInput.setText(dobFormat.format(new Date()));
+
+        setupDobInput(dobInput);
 
         builder.setPositiveButton("Save", (dialog, which) -> {
 
@@ -217,15 +220,16 @@ public class manageChildren extends AppCompatActivity {
         EditText adherenceInput = dialogView.findViewById(R.id.childAdherenceInput);
 
         nameInput.setText(child.name);
-        dobInput.setText(child.dob);
+        dobInput.setText(
+                child.dob != null && !child.dob.isEmpty()
+                        ? child.dob
+                        : dobFormat.format(new Date())
+        );
         notesInput.setText(child.notes);
         pbInput.setText(child.pb != null ? String.valueOf(child.pb) : "");
         adherenceInput.setText(child.adherence != null ? String.valueOf(child.adherence) : "");
 
-        dobInput.setOnClickListener(v ->
-                dobInput.setText(new SimpleDateFormat("yyyy-MM-dd",
-                        Locale.getDefault()).format(new Date()))
-        );
+        setupDobInput(dobInput);
 
         builder.setPositiveButton("Save", (dialog, which) -> {
 
@@ -267,6 +271,25 @@ public class manageChildren extends AppCompatActivity {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private void setupDobInput(EditText input) {
+        input.setFocusable(false);
+        input.setOnClickListener(v -> {
+            Calendar cal = Calendar.getInstance();
+            DatePickerDialog dialog = new DatePickerDialog(
+                    this,
+                    (view, year, month, dayOfMonth) -> {
+                        Calendar selected = Calendar.getInstance();
+                        selected.set(year, month, dayOfMonth, 0, 0, 0);
+                        input.setText(dobFormat.format(selected.getTime()));
+                    },
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH)
+            );
+            dialog.show();
+        });
     }
 
     private static class Child {

@@ -54,6 +54,17 @@
         <activity android:name=".badges" android:exported="false"/>
         <activity android:name=".settings" android:exported="false"/>
 
+        <!-- PDF Export -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.b07_group_project.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>

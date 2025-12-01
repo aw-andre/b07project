@@ -1,9 +1,11 @@
 package com.example.b07_group_project;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
@@ -25,6 +28,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -64,6 +68,8 @@ public class providerReportView extends AppCompatActivity {
     private DatabaseReference shareSettingsRef;
 
     //private String providerId = "provider789";
+
+    private String currentChildName;
     private String providerId;
     private String currentChildId;
     private int monthRange = 3;
@@ -185,6 +191,7 @@ public class providerReportView extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= 0 && position < linkedChildIds.size()) {
                     String childId = linkedChildIds.get(position);
+                    currentChildName = linkedChildNames.get(position);
                     loadReportForChild(childId);
                 }
             }
@@ -261,18 +268,39 @@ public class providerReportView extends AppCompatActivity {
 
                         rescueFrequencyText.setText("Rescue uses: " + totalCount);
 
+
                         List<Entry> entries = new ArrayList<>();
-                        int index = 0;
-                        for (String d : perDay.keySet()) {
-                            entries.add(new Entry(index++, perDay.get(d)));
+
+                        for (String dayStr : perDay.keySet()) {
+                            try {
+                                Date date = dayFormat.parse(dayStr);
+                                if (date != null) {
+                                    float x = (float) date.getTime();
+                                    entries.add(new Entry(x, perDay.get(dayStr)));
+                                }
+                            } catch (Exception e) { e.printStackTrace(); }
                         }
 
                         LineDataSet dataSet = new LineDataSet(entries, "Daily rescue");
                         LineData data = new LineData(dataSet);
                         rescueChart.setData(data);
+
+
+                        rescueChart.getXAxis().setValueFormatter(new ValueFormatter() {
+                            @Override
+                            public String getFormattedValue(float value) {
+                                return dayFormat.format(new Date((long) value));
+                            }
+                        });
+
+                        rescueChart.getXAxis().setLabelRotationAngle(45f);
+                        rescueChart.getXAxis().setGranularity(24f * 60f * 60f * 1000f);
+                        rescueChart.getXAxis().setGranularityEnabled(true);
+
                         Description desc = new Description();
                         desc.setText("");
                         rescueChart.setDescription(desc);
+
                         rescueChart.invalidate();
                     }
 
@@ -386,6 +414,13 @@ public class providerReportView extends AppCompatActivity {
                         if (red > 0) entries.add(new PieEntry(red, "Red"));
 
                         PieDataSet dataSet = new PieDataSet(entries, "");
+                        ArrayList<Integer> colors = new ArrayList<>();
+                        for (PieEntry e : entries) {
+                            if (e.getLabel().equals("Green")) colors.add(android.graphics.Color.rgb(76, 175, 80));     // 초록
+                            else if (e.getLabel().equals("Yellow")) colors.add(android.graphics.Color.rgb(255, 235, 59)); // 노랑
+                            else if (e.getLabel().equals("Red")) colors.add(android.graphics.Color.rgb(244, 67, 54));      // 빨강
+                        }
+                        dataSet.setColors(colors);
                         PieData data = new PieData(dataSet);
                         zoneChart.setData(data);
                         Description desc = new Description();
@@ -458,35 +493,104 @@ public class providerReportView extends AppCompatActivity {
 
     private void exportToPdf() {
         PdfDocument pdf = new PdfDocument();
-        PdfDocument.PageInfo pageInfo =
-                new PdfDocument.PageInfo.Builder(1080, 1920, 1).create();
-        PdfDocument.Page page = pdf.startPage(pageInfo);
 
+        int pageWidth = 1080;
+        int pageHeight = 1920;
+        int y = 80;
+
+        Paint headerPaint = new Paint();
+        headerPaint.setTextSize(48f);
+        headerPaint.setFakeBoldText(true);
+
+        Paint labelPaint = new Paint();
+        labelPaint.setTextSize(36f);
+        labelPaint.setFakeBoldText(true);
+
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(32f);
+
+        PdfDocument.Page page =
+                pdf.startPage(new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create());
         Canvas canvas = page.getCanvas();
-        Paint paint = new Paint();
-        paint.setTextSize(40f);
 
-        canvas.drawText("Provider Report", 40, 80, paint);
 
-        Bitmap rescueBitmap = rescueChart.getChartBitmap();
-        Bitmap zoneBitmap = zoneChart.getChartBitmap();
+        canvas.drawText("Provider Report", 40, y, headerPaint);
+        y += 60;
 
-        int y = 140;
-        if (rescueBitmap != null) {
-            canvas.drawBitmap(rescueBitmap, 40, y, null);
-            y += rescueBitmap.getHeight() + 40;
+        canvas.drawText("Child: " + currentChildName, 40, y, textPaint);
+        y += 40;
+
+        canvas.drawText("Range: Last " + monthRange + " months", 40, y, textPaint);
+        y += 60;
+
+
+        canvas.drawText("Rescue Frequency", 40, y, labelPaint);
+        y += 50;
+
+        canvas.drawText(rescueFrequencyText.getText().toString(), 40, y, textPaint);
+        y += 40;
+
+        Bitmap rescueBmp = rescueChart.getChartBitmap();
+        if (rescueBmp != null) {
+            canvas.drawBitmap(rescueBmp, 40, y, null);
+            y += rescueBmp.getHeight() + 60;
         }
-        if (zoneBitmap != null) {
-            canvas.drawBitmap(zoneBitmap, 40, y, null);
+
+
+        canvas.drawText("Controller Adherence", 40, y, labelPaint);
+        y += 50;
+
+        canvas.drawText(adherenceText.getText().toString(), 40, y, textPaint);
+        y += 60;
+
+
+        canvas.drawText("Symptom Burden", 40, y, labelPaint);
+        y += 50;
+
+        canvas.drawText(symptomBurdenText.getText().toString(), 40, y, textPaint);
+        y += 60;
+
+
+        canvas.drawText("Zone Distribution", 40, y, labelPaint);
+        y += 50;
+
+        canvas.drawText(zoneDistributionText.getText().toString(), 40, y, textPaint);
+        y += 40;
+
+        Bitmap zoneBmp = zoneChart.getChartBitmap();
+        if (zoneBmp != null) {
+            canvas.drawBitmap(zoneBmp, 40, y, null);
+            y += zoneBmp.getHeight() + 60;
         }
+
+        canvas.drawText("Notable Triage Incidents", 40, y, labelPaint);
+        y += 50;
+
+        canvas.drawText(triageIncidentsText.getText().toString(), 40, y, textPaint);
+        y += 60;
+
 
         pdf.finishPage(page);
 
         try {
-            File file = new File(getExternalFilesDir(null), "provider_report.pdf");
-            FileOutputStream out = new FileOutputStream(file);
-            pdf.writeTo(out);
-            out.close();
+            File outDir = new File(getCacheDir(), "exports");
+            if (!outDir.exists()) outDir.mkdirs();
+
+            File pdfFile = new File(outDir, "provider_report.pdf");
+
+            FileOutputStream fos = new FileOutputStream(pdfFile);
+            pdf.writeTo(fos);
+            fos.close();
+
+            String authority = getPackageName() + ".fileprovider";
+            Uri uri = FileProvider.getUriForFile(this, authority, pdfFile);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "application/pdf");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(Intent.createChooser(intent, "Open PDF"));
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

@@ -1,6 +1,7 @@
 package com.example.b07_group_project;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -219,6 +221,25 @@ public class medicationManagement extends AppCompatActivity {
         selectChildById(selectedChildId);
     }
 
+    private void setupDateInput(EditText input) {
+        input.setFocusable(false);
+        input.setOnClickListener(v -> {
+            Calendar cal = Calendar.getInstance();
+            DatePickerDialog dialog = new DatePickerDialog(
+                    this,
+                    (view, year, month, dayOfMonth) -> {
+                        Calendar selected = Calendar.getInstance();
+                        selected.set(year, month, dayOfMonth, 0, 0, 0);
+                        input.setText(dateFormat.format(selected.getTime()));
+                    },
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH)
+            );
+            dialog.show();
+        });
+    }
+
     private void attachInventoryListener() {
         detachInventoryListener();
         if (selectedChildId == null) return;
@@ -285,16 +306,17 @@ public class medicationManagement extends AppCompatActivity {
         if (med.name != null) nameInput.setText(med.name);
         if (med.purchaseDate != null && med.purchaseDate > 0)
             purchaseDateInput.setText(dateFormat.format(new Date(med.purchaseDate)));
+        else
+            purchaseDateInput.setText(dateFormat.format(new Date()));
         if (med.amountLeft != null)
             amountLeftInput.setText(String.valueOf(med.amountLeft));
         if (med.expiryDate != null && med.expiryDate > 0)
             expiryDateInput.setText(dateFormat.format(new Date(med.expiryDate)));
+        else
+            expiryDateInput.setText(dateFormat.format(new Date()));
 
-        purchaseDateInput.setOnClickListener(v ->
-                purchaseDateInput.setText(dateFormat.format(new Date())));
-
-        expiryDateInput.setOnClickListener(v ->
-                expiryDateInput.setText(dateFormat.format(new Date())));
+        setupDateInput(purchaseDateInput);
+        setupDateInput(expiryDateInput);
 
         builder.setPositiveButton("Save", (dialog, which) -> {
             String name = nameInput.getText().toString().trim();

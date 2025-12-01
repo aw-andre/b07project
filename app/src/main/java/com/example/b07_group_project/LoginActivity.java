@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
         setContentView(R.layout.activity_login);
 
         // For now we still use the dummy repository;
-        // you can later swap this for FirebaseUserRepository.
+        // Later swap this for FirebaseUserRepository.
         IUserRepository repo = new DummyUserRepository();
         presenter = new LoginPresenter(this, repo);
 

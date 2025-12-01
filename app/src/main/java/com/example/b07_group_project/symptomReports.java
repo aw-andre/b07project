@@ -3,6 +3,7 @@ package com.example.b07_group_project;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -462,6 +464,97 @@ public class symptomReports extends AppCompatActivity {
         startPicker.setTitle("Start date");
         startPicker.show();
     }
+    private Bitmap generatePdfPreviewBitmap(List<SymptomReport> reports) {
+
+        int width = 1080;
+        int height = 1600;
+
+        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bmp);
+        Paint paint = new Paint();
+        paint.setTextSize(36f);
+
+        int y = 80;
+
+        paint.setFakeBoldText(true);
+        canvas.drawText("Symptom Report Summary (Preview)", 40, y, paint);
+        paint.setFakeBoldText(false);
+        y += 60;
+
+        for (SymptomReport r : reports) {
+            if (y > height - 150) break;
+
+            String dateStr = dateFormat.format(new Date(r.timestamp));
+            String triggersStr = (r.triggers != null && !r.triggers.isEmpty())
+                    ? TextUtils.join(", ", r.triggers) : "-";
+
+            canvas.drawText("Date: " + dateStr, 40, y, paint); y += 40;
+            canvas.drawText("Child: " + r.childName + "  Author: " + r.author, 40, y, paint); y += 40;
+            canvas.drawText("Night waking: " + (r.nightWaking ? "Yes" : "No"), 40, y, paint); y += 40;
+            canvas.drawText("Activity limits: " + (r.activityLimits ? "Yes" : "No"), 40, y, paint); y += 40;
+            canvas.drawText("Cough/Wheeze: " + (r.coughWheeze ? "Yes" : "No"), 40, y, paint); y += 40;
+            canvas.drawText("Triggers: " + triggersStr, 40, y, paint); y += 40;
+
+            if (r.notes != null && !r.notes.isEmpty()) {
+                canvas.drawText("Notes: " + r.notes, 40, y, paint);
+                y += 40;
+            }
+            y += 50;
+        }
+
+        return bmp;
+    }
+    private void showPdfPreviewDialog(Bitmap preview, File pdfFile, File csvFile) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_pdf_preview, null);
+
+        ImageView previewImage = view.findViewById(R.id.previewImage);
+        Button btnDownload = view.findViewById(R.id.btnDownload);
+        Button btnShare = view.findViewById(R.id.btnShare);
+
+        previewImage.setImageBitmap(preview);
+
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        btnDownload.setOnClickListener(v -> {
+            dialog.dismiss();
+
+            Uri uri = FileProvider.getUriForFile(this,
+                    getPackageName() + ".fileprovider",
+                    pdfFile);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "application/pdf");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(intent);
+        });
+
+        btnShare.setOnClickListener(v -> {
+            dialog.dismiss();
+
+            Uri pdfUri = FileProvider.getUriForFile(this,
+                    getPackageName() + ".fileprovider",
+                    pdfFile);
+
+            Uri csvUri = FileProvider.getUriForFile(this,
+                    getPackageName() + ".fileprovider",
+                    csvFile);
+
+            ArrayList<Uri> list = new ArrayList<>();
+            list.add(pdfUri);
+            list.add(csvUri);
+
+            Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            sendIntent.setType("*/*");
+            sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, list);
+            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(sendIntent, "Share Reports"));
+        });
+    }
+
 
     private void exportCurrentView() {
         if (visibleReports.isEmpty()) {
@@ -480,24 +573,17 @@ public class symptomReports extends AppCompatActivity {
             writeCsv(csvFile, visibleReports);
             writePdf(pdfFile, visibleReports);
 
-            String authority = getPackageName() + ".fileprovider";
-            Uri csvUri = FileProvider.getUriForFile(this, authority, csvFile);
-            Uri pdfUri = FileProvider.getUriForFile(this, authority, pdfFile);
+            PdfDocument doc = new PdfDocument();
 
-            ArrayList<Uri> uris = new ArrayList<>();
-            uris.add(pdfUri);
-            uris.add(csvUri);
+            Bitmap previewBitmap = generatePdfPreviewBitmap(visibleReports);
 
-            Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-            sendIntent.setType("*/*");
-            sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(sendIntent, "Share reports"));
+            showPdfPreviewDialog(previewBitmap, pdfFile, csvFile);
 
         } catch (Exception e) {
             Toast.makeText(this, "Export failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
     private void writeCsv(File file, List<SymptomReport> reports) throws Exception {
         FileWriter fw = new FileWriter(file);
