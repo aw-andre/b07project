@@ -20,6 +20,11 @@ configurations provided through the parent interface.
 Under the provider interface, providers are able to see reports configured by the parents regarding patient symptoms/medication logs.
 
 ## Sample Credentials
+### Parent Login
+Email: lisa@example.com
+PW: GoodMorning
+### Child Login
+### Provider Login
 
 
 
