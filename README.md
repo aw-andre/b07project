@@ -24,7 +24,10 @@ Under the provider interface, providers are able to see reports configured by th
 Email: lisa@example.com
 PW: GoodMorning
 ### Child Login
+ChildId: -OfIIM7aFSW74vHxqqjp
 ### Provider Login
+Email: provider@mail.com
+PW: kingoftheprovider
 
 
 
