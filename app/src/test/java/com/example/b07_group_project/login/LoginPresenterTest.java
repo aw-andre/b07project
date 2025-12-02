@@ -4,17 +4,18 @@ import com.example.b07_group_project.data.IUserRepository;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Unit tests for LoginPresenter (MVP).
- * Each test validates one specific behavior.
+ * Each test validates exactly one behavior.
  */
-@RunWith(MockitoJUnitRunner.class)
 public class LoginPresenterTest {
 
     @Mock
@@ -27,9 +28,12 @@ public class LoginPresenterTest {
 
     @Before
     public void setUp() {
+        // Initialize @Mock fields
+        MockitoAnnotations.openMocks(this);
         presenter = new LoginPresenter(view, userRepository);
     }
-    // parent
+    //Project Handout REQUIREMENTS!!!
+    // 1) Parent login: only navigateToParent is called
     @Test
     public void onParentLoginClicked_navigatesToParent() {
         presenter.onParentLoginClicked();
@@ -37,9 +41,12 @@ public class LoginPresenterTest {
         verify(view).navigateToParent();
         verify(view, never()).navigateToChild();
         verify(view, never()).navigateToProvider();
+        // Presenter does not touch the model yet
         verifyNoInteractions(userRepository);
+        verifyNoMoreInteractions(view);
     }
-    // child
+
+    // 2) Child login: only navigateToChild is called
     @Test
     public void onChildLoginClicked_navigatesToChild() {
         presenter.onChildLoginClicked();
@@ -48,8 +55,10 @@ public class LoginPresenterTest {
         verify(view, never()).navigateToParent();
         verify(view, never()).navigateToProvider();
         verifyNoInteractions(userRepository);
+        verifyNoMoreInteractions(view);
     }
-    // provider
+
+    // 3) Provider login: only navigateToProvider is called
     @Test
     public void onProviderLoginClicked_navigatesToProvider() {
         presenter.onProviderLoginClicked();
@@ -58,8 +67,10 @@ public class LoginPresenterTest {
         verify(view, never()).navigateToParent();
         verify(view, never()).navigateToChild();
         verifyNoInteractions(userRepository);
+        verifyNoMoreInteractions(view);
     }
-    // viewing
+
+    // 4) After detach, presenter must not call the view at all
     @Test
     public void detach_preventsFurtherViewCalls() {
         presenter.detach();
@@ -68,9 +79,10 @@ public class LoginPresenterTest {
         presenter.onChildLoginClicked();
         presenter.onProviderLoginClicked();
 
-        // After detach, presenter must not touch the view at all
+        // No interactions with view or model after detach
         verifyNoInteractions(view);
         verifyNoInteractions(userRepository);
     }
 }
+
 
