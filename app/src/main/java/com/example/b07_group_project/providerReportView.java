@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -462,27 +463,39 @@ public class providerReportView extends AppCompatActivity {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        int usedDoses = 0;
+                        Map<String, Integer> dailyUsage = new HashMap<>();
 
                         for (DataSnapshot s : snapshot.getChildren()) {
                             Long ts = s.child("timestamp").getValue(Long.class);
                             if (ts == null || ts < cutoffMillis) continue;
 
                             Integer c = s.child("controller").getValue(Integer.class);
-                            if (c != null) usedDoses += c;
+                            if (c == null) continue;
+
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTimeInMillis(ts);
+                            int y = cal.get(Calendar.YEAR);
+                            int m = cal.get(Calendar.MONTH);
+                            int d = cal.get(Calendar.DAY_OF_MONTH);
+                            String key = y + "-" + m + "-" + d;
+
+                            Integer prev = dailyUsage.get(key);
+                            dailyUsage.put(key, (prev == null ? 0 : prev) + c);
                         }
 
-                        long now = System.currentTimeMillis();
-                        long days = (now - cutoffMillis) / (1000L * 60 * 60 * 24);
-                        if (days < 1) days = 1;
-
-                        long planned = (long) dosePerDay * days;
-                        if (planned <= 0) {
-                            adherenceText.setText("Adherence: Not set");
+                        int totalRecordedDays = dailyUsage.size();
+                        if (totalRecordedDays == 0) {
+                            adherenceText.setText("Adherence: No data");
                             return;
                         }
 
-                        int pct = (int) Math.round((usedDoses * 100.0) / planned);
+                        int adherentDays = 0;
+                        for (String key : dailyUsage.keySet()) {
+                            Integer used = dailyUsage.get(key);
+                            if (used != null && used == dosePerDay) adherentDays++;
+                        }
+
+                        int pct = (int) Math.round((adherentDays * 100.0) / totalRecordedDays);
                         adherenceText.setText("Adherence: " + pct + "%");
                     }
 
@@ -490,6 +503,7 @@ public class providerReportView extends AppCompatActivity {
                     public void onCancelled(@NonNull DatabaseError error) { }
                 });
     }
+
 
     private void exportToPdf() {
         PdfDocument pdf = new PdfDocument();
